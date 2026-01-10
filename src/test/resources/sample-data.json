@@ -1,0 +1,45 @@
+  {
+    "_id": "68b6a6ab8ac05f848f1e506d",
+    "index": 0,
+    "guid": "22f1253e-1390-4fe6-903f-9d58330993cb",
+    "isActive": false,
+    "balance": "$2,952.06",
+    "picture": "http://placehold.it/32x32",
+    "age": 27,
+    "eyeColor": "blue",
+    "name": "Randall Trujillo",
+    "gender": "male",
+    "company": "MEDICROIX",
+    "email": "randalltrujillo@medicroix.com",
+    "phone": "+1 (901) 478-2321",
+    "address": "182 Visitation Place, Stewart, Nevada, 2144",
+    "about": "Mollit sint commodo ad anim excepteur do anim.",
+    "registered": "2021-12-26T08:41:09 -01:00",
+    "latitude": -35.446177,
+    "longitude": 124.718652,
+    "tags": [
+      "cillum",
+      "incididunt",
+      "amet",
+      "non",
+      "labore",
+      "ea",
+      "nostrud"
+    ],
+    "friends": [
+      {
+        "id": 0,
+        "name": "Chang Gentry"
+      },
+      {
+        "id": 1,
+        "name": "Witt Hendrix"
+      },
+      {
+        "id": 2,
+        "name": "Sonya Levine"
+      }
+    ],
+    "greeting": "Hello, Randall Trujillo! You have 7 unread messages.",
+    "favoriteFruit": "strawberry"
+  }
