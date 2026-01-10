@@ -5,9 +5,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.wnameless.json.base.JacksonJsonValue;
-import com.github.wnameless.json.base.JsonValueBase;
 import com.github.wnameless.json.flattener.JsonFlattener;
-
 import io.github.zaragozamartin91.splitter.JsonSource.ContentType;
 
 public class JsonSplitter {
@@ -23,7 +21,7 @@ public class JsonSplitter {
         this.objectMapper = objectMapper;
     }
 
-    public JsonOutput split(SplitStrategy strategy) {
+    public SplitJson split(SplitStrategy strategy) {
         /*
          * Steps:
          * 1. Read JSON data from the source
@@ -50,9 +48,6 @@ public class JsonSplitter {
         }
 
         FlatJson flatJson = new FlatJson(flatJsonDictionary);
-        SplitJson splitJson = flatJson.split(strategy);
-
-        // Implement splitting logic based on the strategy
-        return new JsonOutput(splitJson);
+        return flatJson.split(strategy);    
     }
 }

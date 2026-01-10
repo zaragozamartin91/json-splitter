@@ -63,4 +63,9 @@ public class JsonSource {
             return ContentType.NONE;
         }
     }
+
+    @Override
+    public String toString() {
+        return "JsonSource [textJson=" + textJson + ", dictionaryJson=" + dictionaryJson + "]";
+    }
 }
