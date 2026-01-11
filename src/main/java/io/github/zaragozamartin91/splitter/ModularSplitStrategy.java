@@ -10,16 +10,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ModularSplitStrategy implements SplitStrategy {
+    private boolean flatten;
     private Function<Collection<Entry<String, Object>>, List<Entry<String, Object>>> preSortFunction;
     private Function<List<Entry<String, Object>>, List<List<Entry<String, Object>>>> groupFunction;
     private Function<List<List<Entry<String, Object>>>, List<Map<String, Object>>> collectFunction;
     private Function<Collection<Entry<String, Object>>, List<Entry<String, Object>>> postSortFunction;
 
     public ModularSplitStrategy(
+            boolean flatten,
             Function<Collection<Entry<String, Object>>, List<Entry<String, Object>>> preSortFunction,
             Function<List<Entry<String, Object>>, List<List<Entry<String, Object>>>> groupFunction,
             Function<List<List<Entry<String, Object>>>, List<Map<String, Object>>> collectFunction,
             Function<Collection<Entry<String, Object>>, List<Entry<String, Object>>> postSortFunction) {
+        this.flatten = flatten;
         this.preSortFunction = preSortFunction;
         this.groupFunction = groupFunction;
         this.collectFunction = collectFunction;
@@ -29,6 +32,7 @@ public class ModularSplitStrategy implements SplitStrategy {
     /* Copy constructor */
     public ModularSplitStrategy(ModularSplitStrategy other) {
         this(
+                other.flatten,
                 other.preSortFunction, // pre sort
                 other.groupFunction, // group
                 other.collectFunction, // collect
@@ -38,6 +42,7 @@ public class ModularSplitStrategy implements SplitStrategy {
 
     public ModularSplitStrategy() {
         this(
+                false,
                 SortFunction::identity, // pre sort
                 GroupFunction::identity, // group
                 CollectFunction::collectToLinkedHashMap, // collect
@@ -46,13 +51,17 @@ public class ModularSplitStrategy implements SplitStrategy {
     }
 
     @Override
-    public List<Map<String, Object>> split(Map<String, Object> flatJson) {
-        if (Objects.isNull(flatJson) || flatJson.isEmpty()) {
+    public List<Map<String, Object>> split(JsonUnit jsonUnit) {
+        if (Objects.isNull(jsonUnit)) {
             return new ArrayList<>();
         }
 
+        FlatJson flatJson = this.flatten ? jsonUnit.flatten() : jsonUnit.plain();
+
+        Map<String, Object> flatJsonData = flatJson.getData();
+
         /* Entries are pre-sorted */
-        Collection<Entry<String, Object>> entrySet = flatJson.entrySet();
+        Collection<Entry<String, Object>> entrySet = flatJsonData.entrySet();
         List<Entry<String, Object>> sortedEntries = this.preSort(entrySet);
 
         /* Entries are split into groups */
@@ -84,6 +93,12 @@ public class ModularSplitStrategy implements SplitStrategy {
     }
 
     /* Builder pattern ---- */
+
+    private ModularSplitStrategy setFlatten(boolean flatten) {
+        this.flatten = flatten;
+        return this;
+    }
+
     private ModularSplitStrategy setPreSortFunction(
             Function<Collection<Entry<String, Object>>, List<Entry<String, Object>>> preSortFunction) {
         this.preSortFunction = preSortFunction;
@@ -109,6 +124,11 @@ public class ModularSplitStrategy implements SplitStrategy {
     }
 
     /* withers */
+
+    public ModularSplitStrategy withFlatten(boolean flatten) {
+        return new ModularSplitStrategy(this).setFlatten(flatten);
+    }
+
     public ModularSplitStrategy withPreSortFunction(
             Function<Collection<Entry<String, Object>>, List<Entry<String, Object>>> preSortFunction) {
         return new ModularSplitStrategy(this).setPreSortFunction(preSortFunction);

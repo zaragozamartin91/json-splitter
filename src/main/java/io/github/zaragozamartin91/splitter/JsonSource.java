@@ -59,6 +59,10 @@ public class JsonSource {
         return dictionaryJson;
     }
 
+    public FlatJson getFlatJson() {
+        return flatJson;
+    }
+
     static enum ContentType {
         TEXT, DICTIONARY, FLAT_JSON, NONE
     }
