@@ -15,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,11 +45,12 @@ public class JsonSplitterTest {
 
         // WHEN
         JsonSource jsonSource = JsonSource.fromString(fileText);
-        JsonSplitter jsonSplitter = new JsonSplitter(jsonSource);
+        JsonSplitter jsonSplitter = new JsonSplitter();
         SplitStrategy strategy = DynamicSplitStrategy
                 .equally(2) // Split equally into 2 parts
+                .flatten() // flatten the nested keys and values
                 .preSortByKey(SortFunction.SortOrder.ASCENDING); // Pre-sort entries by key in ascending order
-        SplitJson splitJson = jsonSplitter.split(strategy);
+        SplitJson splitJson = jsonSplitter.split(jsonSource, strategy);
 
         // THEN
         FlatJson part0 = splitJson.getPart(0);
@@ -67,6 +70,146 @@ public class JsonSplitterTest {
         Map<String, Object> unflattenAsMap1 = part1.unflattenAsMap();
         assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap0.keySet()));
         assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap1.keySet()));
+    }
+
+    @Test
+    public void testSplitJsonByEntryCount() throws URISyntaxException, IOException {
+        // Create a JsonSource object from a JSON string
+        JsonSource source = JsonSource.fromString("{\"key1\": \"value1\", \"key2\": \"value2\", \"key3\": \"value3\"}");
+
+        // Create a DynamicSplitStrategy object to split the JSON data by entry count
+        DynamicSplitStrategy strategy = DynamicSplitStrategy.byEntryCount(2);
+
+        // Create a JsonSplitter object and split the JSON data
+        JsonSplitter splitter = new JsonSplitter();
+        SplitJson splitJson = splitter.split(source, strategy);
+
+        // Get the split JSON data
+        List<FlatJson> flatJsons = splitJson.getParts();
+
+        // Assert that the split JSON data has the expected number of parts
+        assertEquals(2, flatJsons.size());
+
+        // Assert that each part contains the expected number of entries
+        FlatJson part0 = flatJsons.get(0);
+        FlatJson part1 = flatJsons.get(1);
+        assertEquals(2, part0.getKeySet().size());
+        assertEquals(1, part1.getKeySet().size());
+
+        HashMap<String, Object> expectedMap0 = new HashMap<String, Object>() {
+            {
+                put("key1", "value1");
+                put("key2", "value2");
+            }
+        };
+
+        HashMap<String, Object> expectedMap1 = new HashMap<String, Object>() {
+            {
+                put("key3", "value3");
+            }
+        };
+
+        assertEquals(expectedMap0, part0.unflattenAsMap());
+        assertEquals(expectedMap1, part1.unflattenAsMap());
+    }
+
+    @Test
+    public void testSplitJsonWithNestedKeysAndFlatteningByEntryCount() throws URISyntaxException, IOException {
+        // Create a JsonSource object from a JSON string
+        JsonSource source = JsonSource.fromString(
+                "{\"key1\": \"value1\", \"key2\": \"value2\", \"parentKey\": {\"nestedKey0\" : \"nestedValue0\", \"nestedKey1\" : \"nestedValue1\" , \"nestedKey2\" : \"nestedValue2\"} }");
+
+        // Create a DynamicSplitStrategy object to split the JSON data by entry count
+        DynamicSplitStrategy strategy = DynamicSplitStrategy.byEntryCount(3).flatten();
+
+        // Create a JsonSplitter object and split the JSON data
+        JsonSplitter splitter = new JsonSplitter();
+        SplitJson splitJson = splitter.split(source, strategy);
+
+        // Get the split JSON data
+        List<FlatJson> flatJsons = splitJson.getParts();
+
+        // Assert that the split JSON data has the expected number of parts
+        assertEquals(2, flatJsons.size());
+
+        // Assert that each part contains the expected number of entries
+        FlatJson part0 = flatJsons.get(0);
+        FlatJson part1 = flatJsons.get(1);
+        assertEquals(3, part0.getKeySet().size());
+        assertEquals(2, part1.getKeySet().size());
+
+        HashMap<String, Object> expectedMap0 = new HashMap<String, Object>() {
+            {
+                put("key1", "value1");
+                put("key2", "value2");
+                put("parentKey", new HashMap<String, Object>() {
+                    {
+                        put("nestedKey0", "nestedValue0");
+                    }
+                });
+            }
+        };
+
+        HashMap<String, Object> expectedMap1 = new HashMap<String, Object>() {
+            {
+                put("parentKey", new HashMap<String, Object>() {
+                    {
+                        put("nestedKey1", "nestedValue1");
+                        put("nestedKey2", "nestedValue2");
+                    }
+                });
+            }
+        };
+
+        assertEquals(expectedMap0, part0.unflattenAsMap());
+        assertEquals(expectedMap1, part1.unflattenAsMap());
+    }
+
+    @Test
+    public void testSplitJsonWithNestedKeysAndNoFlatteningByEntryCount() throws URISyntaxException, IOException {
+        // Create a JsonSource object from a JSON string
+        JsonSource source = JsonSource.fromString(
+                "{\"key1\": \"value1\", \"key2\": \"value2\", \"parentKey\": {\"nestedKey0\" : \"nestedValue0\", \"nestedKey1\" : \"nestedValue1\"} }");
+
+        // Create a DynamicSplitStrategy object to split the JSON data by entry count
+        DynamicSplitStrategy strategy = DynamicSplitStrategy.byEntryCount(2);
+
+        // Create a JsonSplitter object and split the JSON data
+        JsonSplitter splitter = new JsonSplitter();
+        SplitJson splitJson = splitter.split(source, strategy);
+
+        // Get the split JSON data
+        List<FlatJson> flatJsons = splitJson.getParts();
+
+        // Assert that the split JSON data has the expected number of parts
+        assertEquals(2, flatJsons.size());
+
+        // Assert that each part contains the expected number of entries
+        FlatJson part0 = flatJsons.get(0);
+        FlatJson part1 = flatJsons.get(1);
+        assertEquals(2, part0.getKeySet().size());
+        assertEquals(1, part1.getKeySet().size());
+
+        HashMap<String, Object> expectedMap0 = new HashMap<String, Object>() {
+            {
+                put("key1", "value1");
+                put("key2", "value2");
+            }
+        };
+
+        HashMap<String, Object> expectedMap1 = new HashMap<String, Object>() {
+            {
+                put("parentKey", new HashMap<String, Object>() {
+                    {
+                        put("nestedKey0", "nestedValue0");
+                        put("nestedKey1", "nestedValue1");
+                    }
+                });
+            }
+        };
+
+        assertEquals(expectedMap0, part0.unflattenAsMap());
+        assertEquals(expectedMap1, part1.unflattenAsMap());
     }
 
     private URL resourceUrl(String resourcePath) {

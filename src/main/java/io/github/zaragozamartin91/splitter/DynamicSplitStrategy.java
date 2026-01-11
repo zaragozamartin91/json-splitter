@@ -1,8 +1,5 @@
 package io.github.zaragozamartin91.splitter;
 
-import java.util.List;
-import java.util.Map;
-
 import io.github.zaragozamartin91.splitter.SortFunction.SortOrder;
 
 public class DynamicSplitStrategy implements SplitStrategy {
@@ -13,8 +10,8 @@ public class DynamicSplitStrategy implements SplitStrategy {
     }
 
     @Override
-    public List<Map<String, Object>> split(Map<String, Object> flatJson) {
-        return modularStrategy.split(flatJson);
+    public SplitJson split(JsonUnit jsonUnit) {
+        return modularStrategy.split(jsonUnit);
     }
 
     /*
@@ -26,6 +23,7 @@ public class DynamicSplitStrategy implements SplitStrategy {
     public static DynamicSplitStrategy byEntryCount(int entryCount) {
         return new DynamicSplitStrategy(
                 new ModularSplitStrategy(
+                        false,
                         SortFunction::identity,
                         GroupFunction.groupByEntryCount(entryCount),
                         CollectFunction::collectToLinkedHashMap,
@@ -35,6 +33,7 @@ public class DynamicSplitStrategy implements SplitStrategy {
     public static DynamicSplitStrategy equally(int parts) {
         return new DynamicSplitStrategy(
                 new ModularSplitStrategy(
+                        false,
                         SortFunction::identity,
                         GroupFunction.groupEqually(parts),
                         CollectFunction::collectToLinkedHashMap,
@@ -48,6 +47,11 @@ public class DynamicSplitStrategy implements SplitStrategy {
 
     public DynamicSplitStrategy preSortByKey(SortOrder sortOrder) {
         this.modularStrategy = modularStrategy.withPostSortFunction(SortFunction.sortByKey(sortOrder));
+        return this;
+    }
+
+    public DynamicSplitStrategy flatten() {
+        this.modularStrategy = modularStrategy.withFlatten(true);
         return this;
     }
 }

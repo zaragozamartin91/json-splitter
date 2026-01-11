@@ -10,6 +10,7 @@ import java.util.Objects;
 public class JsonSource {
     private String textJson;
     private Map<String, Object> dictionaryJson;
+    private FlatJson flatJson;
 
     public static JsonSource fromString(String jsonData) {
         return new JsonSource(Objects.requireNonNull(jsonData, "jsonData must not be null"));
@@ -34,12 +35,20 @@ public class JsonSource {
         }
     }
 
+    public static JsonSource fromFlatJson(FlatJson flatJson) {
+        return new JsonSource(flatJson);
+    }
+
     JsonSource(String jsonData) {
         this.textJson = jsonData;
     }
 
     JsonSource(Map<String, Object> mapJson) {
         this.dictionaryJson = mapJson;
+    }
+
+    JsonSource(FlatJson flatJson) {
+        this.flatJson = flatJson;
     }
 
     public String getTextJson() {
@@ -50,8 +59,12 @@ public class JsonSource {
         return dictionaryJson;
     }
 
+    public FlatJson getFlatJson() {
+        return flatJson;
+    }
+
     static enum ContentType {
-        TEXT, DICTIONARY, NONE
+        TEXT, DICTIONARY, FLAT_JSON, NONE
     }
 
     public ContentType getContentType() {
@@ -59,6 +72,8 @@ public class JsonSource {
             return ContentType.TEXT;
         } else if (Objects.nonNull(dictionaryJson)) {
             return ContentType.DICTIONARY;
+        } else if (Objects.nonNull(flatJson)) {
+            return ContentType.FLAT_JSON;
         } else {
             return ContentType.NONE;
         }

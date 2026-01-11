@@ -14,4 +14,8 @@ public class SplitJson {
     public FlatJson getPart(int index) {
         return parts.get(index);
     }
+
+    public List<FlatJson> getParts() {
+        return parts;
+    }
 }
