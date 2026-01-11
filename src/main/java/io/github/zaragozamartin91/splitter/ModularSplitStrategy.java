@@ -51,9 +51,9 @@ public class ModularSplitStrategy implements SplitStrategy {
     }
 
     @Override
-    public List<Map<String, Object>> split(JsonUnit jsonUnit) {
+    public SplitJson split(JsonUnit jsonUnit) {
         if (Objects.isNull(jsonUnit)) {
-            return new ArrayList<>();
+            return new SplitJson(new ArrayList<>());
         }
 
         FlatJson flatJson = this.flatten ? jsonUnit.flatten() : jsonUnit.plain();
@@ -72,8 +72,12 @@ public class ModularSplitStrategy implements SplitStrategy {
                 .map(this::postSort)
                 .collect(Collectors.toList());
 
-        /* Groups are converted to maps */
-        return collect(sortedGroups);
+        List<Map<String, Object>> parts = collect(sortedGroups);
+        List<FlatJson> flatJsons = parts.stream()
+                .map(sd -> new FlatJson(sd))
+                .collect(Collectors.toList());
+
+        return new SplitJson(flatJsons);
     }
 
     private List<Entry<String, Object>> preSort(Collection<Entry<String, Object>> entrySet) {

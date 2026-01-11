@@ -1,9 +1,6 @@
 package io.github.zaragozamartin91.splitter;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,10 +62,6 @@ public class JsonUnit {
     }
 
     public SplitJson split(SplitStrategy strategy) {
-        List<Map<String, Object>> splitData = strategy.split(this);
-        List<FlatJson> flatJsons = splitData.stream()
-                .map(sd -> new FlatJson(sd))
-                .collect(Collectors.toList());
-        return new SplitJson(flatJsons);
+        return strategy.split(this);
     }
 }

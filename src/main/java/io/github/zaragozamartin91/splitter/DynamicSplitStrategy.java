@@ -1,8 +1,5 @@
 package io.github.zaragozamartin91.splitter;
 
-import java.util.List;
-import java.util.Map;
-
 import io.github.zaragozamartin91.splitter.SortFunction.SortOrder;
 
 public class DynamicSplitStrategy implements SplitStrategy {
@@ -13,7 +10,7 @@ public class DynamicSplitStrategy implements SplitStrategy {
     }
 
     @Override
-    public List<Map<String, Object>> split(JsonUnit jsonUnit) {
+    public SplitJson split(JsonUnit jsonUnit) {
         return modularStrategy.split(jsonUnit);
     }
 
