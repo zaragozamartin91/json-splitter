@@ -15,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,6 +70,48 @@ public class JsonSplitterTest {
         assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap0.keySet()));
         assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap1.keySet()));
     }
+
+    @Test
+    public void testSplitJsonByEntryCount() throws URISyntaxException, IOException {
+        // Create a JsonSource object from a JSON string
+        JsonSource source = JsonSource.fromString("{\"key1\": \"value1\", \"key2\": \"value2\", \"key3\": \"value3\"}");
+
+        // Create a DynamicSplitStrategy object to split the JSON data by entry count
+        DynamicSplitStrategy strategy = DynamicSplitStrategy.byEntryCount(2);
+
+        // Create a JsonSplitter object and split the JSON data
+        JsonSplitter splitter = new JsonSplitter(source);
+        SplitJson splitJson = splitter.split(strategy);
+
+        // Get the split JSON data
+        List<FlatJson> flatJsons = splitJson.getParts();
+
+        // Assert that the split JSON data has the expected number of parts
+        assertEquals(2, flatJsons.size());
+
+        // Assert that each part contains the expected number of entries
+        FlatJson part0 = flatJsons.get(0);
+        FlatJson part1 = flatJsons.get(1);
+        assertEquals(2, part0.getKeySet().size());
+        assertEquals(1, part1.getKeySet().size());
+
+        HashMap<String, Object> expectedMap0 = new HashMap<String, Object>() {
+            {
+                put("key1", "value1");
+                put("key2", "value2");
+            }
+        };
+
+        HashMap<String, Object> expectedMap1 = new HashMap<String, Object>() {
+            {
+                put("key3", "value3");
+            }
+        };
+
+        assertEquals(expectedMap0, part0.unflattenAsMap());
+        assertEquals(expectedMap1, part1.unflattenAsMap());
+    }
+
 
     private URL resourceUrl(String resourcePath) {
         return this.getClass().getResource(resourcePath);
