@@ -26,6 +26,8 @@ jobs:
         java-version: '8'
         distribution: 'corretto'
         cache: maven
+    - name: Chmod +x mvnw
+      run: chmod +x ./mvnw
     - name: Clean
       run: ./mvnw -B clean
     - name: Compile
