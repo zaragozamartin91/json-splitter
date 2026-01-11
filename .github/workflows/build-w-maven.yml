@@ -16,6 +16,7 @@ on:
 
 jobs:
   build:
+    name: Maven Build
     runs-on: ubuntu-latest
 
     steps:
@@ -26,6 +27,13 @@ jobs:
         java-version: '8'
         distribution: 'corretto'
         cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-
+    - name: Chmod +x mvnw
+      run: chmod +x ./mvnw
+    - name: Clean
+      run: ./mvnw -B clean
+    - name: Compile
+      run: ./mvnw -B compile
+    - name: Test
+      run: ./mvnw -B test
+    - name: Package
+      run: ./mvnw -B package

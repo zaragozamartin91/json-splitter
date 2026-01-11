@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.zaragozamartin91</groupId>
   <artifactId>json-splitter</artifactId>
-  <version>1.4</version>
+  <version>1.4</version> <!-- versionPlaceholder -->
   <name>json-splitter</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
