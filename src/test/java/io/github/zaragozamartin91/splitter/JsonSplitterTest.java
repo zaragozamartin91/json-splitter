@@ -67,8 +67,6 @@ public class JsonSplitterTest {
         Map<String, Object> unflattenAsMap1 = part1.unflattenAsMap();
         assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap0.keySet()));
         assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap1.keySet()));
-
-        fail(); // fail on purpose
     }
 
     private URL resourceUrl(String resourcePath) {
