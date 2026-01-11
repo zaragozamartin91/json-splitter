@@ -9,16 +9,16 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 
 import io.github.zaragozamartin91.splitter.JsonSource.ContentType;
 
-public class JsonUnit {
+class JsonUnit {
     private JsonSource source;
     private ObjectMapper objectMapper;
 
-    public JsonUnit(JsonSource source, ObjectMapper objectMapper) {
+    JsonUnit(JsonSource source, ObjectMapper objectMapper) {
         this.source = source;
         this.objectMapper = objectMapper;
     }
 
-    public FlatJson flatten() {
+    FlatJson flatten() {
         ContentType contentType = source.getContentType();
         switch (contentType) {
             case TEXT:
@@ -36,7 +36,7 @@ public class JsonUnit {
         }
     }
 
-    public FlatJson plain() {
+    FlatJson plain() {
         ContentType contentType = source.getContentType();
         Map<String, Object> flatJsonDictionary;
         switch (contentType) {
@@ -61,7 +61,7 @@ public class JsonUnit {
         return new FlatJson(flatJsonDictionary);
     }
 
-    public SplitJson split(SplitStrategy strategy) {
+    SplitJson split(SplitStrategy strategy) {
         return strategy.split(this);
     }
 }
