@@ -11,10 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +23,7 @@ public class JsonSplitterTest {
     @Test
     public void testTestDataFileIsReadableFromResources() throws URISyntaxException, IOException {
         String resourcePath = "/sample-data.json";
-        String string = utf8FileText(resourcePath);
+        String string = TestUtil.utf8FileText(resourcePath);
         assertNotNull(string);
         assertFalse(string.isEmpty());
     }
@@ -35,7 +31,7 @@ public class JsonSplitterTest {
     @Test
     public void testSplitJsonEquallyPlusPreSortByEntryKey() throws URISyntaxException, IOException {
         // GIVEN
-        String fileText = utf8FileText("/sample-data.json");
+        String fileText = TestUtil.utf8FileText("/sample-data.json");
         // read fileText as a Map using ObjectMapper
         Map<String, Object> originalJsonMap = mapper.readValue(fileText, new TypeReference<Map<String, Object>>() {
         });
@@ -214,12 +210,5 @@ public class JsonSplitterTest {
 
     private URL resourceUrl(String resourcePath) {
         return this.getClass().getResource(resourcePath);
-    }
-
-    private String utf8FileText(String resourcePath) throws URISyntaxException, IOException {
-        URL url = resourceUrl(resourcePath);
-        Path path = Paths.get(url.toURI());
-        byte[] fileBytes = Files.readAllBytes(path);
-        return new String(fileBytes, StandardCharsets.UTF_8);
     }
 }
