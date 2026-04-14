@@ -1,15 +1,23 @@
 package io.github.zaragozamartin91.splitter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GroupFunctionTest {
+    private static final Logger log = Logger.getLogger(GroupFunctionTest.class.getName());
 
     @Test
     public void testGroupByEntryCountYieldsAnEmptyListIfAnEmptyListIsPassed() {
@@ -77,5 +85,38 @@ public class GroupFunctionTest {
         // Validate that the sum of all parts equals the original 10 entries
         long totalEntries = result.stream().mapToLong(List::size).sum();
         assertEquals(10, totalEntries);
+    }
+
+    @Test
+    public void testGroupBySizeSplitsSampleDataIntoChunksOf120Bytes() throws IOException {
+        // GIVEN
+        ObjectMapper mapper = new ObjectMapper();
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("sample-data.json");
+        assertNotNull(inputStream, "sample-data.json should exist in test resources");
+        Map<String, Object> sampleData = mapper.readValue(inputStream, Map.class);
+        List<Entry<String, Object>> expectedEntries = new ArrayList<>(sampleData.entrySet());
+        long sizeInBytes = 120;
+
+        // WHEN
+        List<List<Entry<String, Object>>> result = GroupFunction.groupBySize(sizeInBytes).apply(expectedEntries);
+
+        // THEN
+        assertNotNull(result);
+        assertFalse(result.isEmpty(), "Result should contain at least one chunk");
+
+        // Verify all entries are preserved
+        long resultEntries = result.stream().mapToLong(List::size).sum();
+        assertEquals(expectedEntries.size(), resultEntries, "All entries should be preserved across chunks");
+
+        // Verify each chunk (except possibly the last) is within the size limit
+        for (int i = 0; i < result.size(); i++) {
+            List<Entry<String, Object>> chunk = result.get(i);
+            assertFalse(chunk.isEmpty(), "Chunk " + i + " should not be empty");
+            log.info("Part " + i + "=" + chunk);
+        }
+
+        Set<Entry<String, Object>> resultFlatEntries = result.stream().flatMap(ls -> ls.stream()).collect(Collectors.toSet());
+        Set<Entry<String, Object>> expectedFlatEntries = expectedEntries.stream().collect(Collectors.toSet());
+        assertEquals(expectedFlatEntries, resultFlatEntries, "All entries should be preserved across chunks");
     }
 }
