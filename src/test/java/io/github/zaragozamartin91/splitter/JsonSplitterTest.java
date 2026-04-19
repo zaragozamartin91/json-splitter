@@ -15,9 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /* Using java 8 & junit 5 ==> unit tests must hold the 'test' prefix */
 public class JsonSplitterTest {
+    private static final Logger log = Logger.getLogger(JsonSplitterTest.class.getName());
+
     ObjectMapper mapper = new ObjectMapper();
 
     @Test
@@ -208,7 +211,29 @@ public class JsonSplitterTest {
         assertEquals(expectedMap1, part1.unflattenAsMap());
     }
 
-    private URL resourceUrl(String resourcePath) {
-        return this.getClass().getResource(resourcePath);
+    @Test
+    public void testSplitBySize() throws URISyntaxException, IOException {
+        // GIVEN
+        String fileText = TestUtil.utf8FileText("/sample-data.json");
+
+        // WHEN
+        JsonSource jsonSource = JsonSource.fromString(fileText);
+        JsonSplitter jsonSplitter = new JsonSplitter();
+        int sizeInBytes = 128;
+        GroupBySizeContext context = new GroupBySizeContext(sizeInBytes);
+        DynamicSplitStrategy strategy = DynamicSplitStrategy.bySize(context);
+        SplitJson splitJson = jsonSplitter.split(jsonSource, strategy);
+
+        // THEN
+        List<FlatJson> parts = splitJson.getParts();
+        assertNotNull(parts);
+        assertFalse(parts.isEmpty());
+
+        // Verify all parts are under the size limit
+        for (FlatJson part : parts) {
+            String json = part.unflattenAsString();
+            assertTrue(json.getBytes().length <= sizeInBytes, "Part size exceeds 128 bytes");
+            log.info("Part: " + part.unflattenAsMap());
+        }
     }
 }

@@ -96,9 +96,10 @@ public class GroupFunctionTest {
         Map<String, Object> sampleData = mapper.readValue(inputStream, Map.class);
         List<Entry<String, Object>> expectedEntries = new ArrayList<>(sampleData.entrySet());
         long sizeInBytes = 120;
+        GroupBySizeContext context = new GroupBySizeContext(sizeInBytes);
 
         // WHEN
-        List<List<Entry<String, Object>>> result = GroupFunction.groupBySize(sizeInBytes).apply(expectedEntries);
+        List<List<Entry<String, Object>>> result = GroupFunction.groupBySize(context).apply(expectedEntries);
 
         // THEN
         assertNotNull(result);
