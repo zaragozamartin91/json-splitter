@@ -42,7 +42,7 @@ public class DynamicSplitStrategy implements SplitStrategy {
 
     public static DynamicSplitStrategy bySize(GroupBySizeContext context) {
         return new DynamicSplitStrategy(
-                new ModularSplitStrategy(
+                new SplitBySizeStrategy(
                         false,
                         SortFunction::identity,
                         GroupFunction.groupBySize(context),
