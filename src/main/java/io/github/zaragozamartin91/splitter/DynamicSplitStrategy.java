@@ -40,6 +40,16 @@ public class DynamicSplitStrategy implements SplitStrategy {
                         SortFunction::identity));
     }
 
+    public static DynamicSplitStrategy bySize(GroupBySizeContext context) {
+        return new DynamicSplitStrategy(
+                new ModularSplitStrategy(
+                        false,
+                        SortFunction::identity,
+                        GroupFunction.groupBySize(context),
+                        CollectFunction::collectToLinkedHashMap,
+                        SortFunction::identity));
+    }
+
     /*
      * Modification methods
      * -----------------------------------------------------------------------------

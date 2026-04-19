@@ -23,8 +23,8 @@ public class GroupFunction {
         return (sortedEntries) -> groupEqually(sortedEntries, parts);
     }
 
-    public static Function<List<Entry<String, Object>>, List<List<Entry<String, Object>>>> groupBySize(long sizeInBytes) {
-        return (sortedEntries) -> groupBySize(sortedEntries, sizeInBytes);
+    public static Function<List<Entry<String, Object>>, List<List<Entry<String, Object>>>> groupBySize(GroupBySizeContext context) {
+        return (sortedEntries) -> groupBySize(sortedEntries, context.getSizeInBytes());
     }
 
     private static List<List<Entry<String, Object>>> groupByEntryCount(List<Entry<String, Object>> sortedEntries, int maxEntries) {
