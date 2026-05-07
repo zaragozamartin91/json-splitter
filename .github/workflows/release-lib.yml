@@ -42,18 +42,19 @@ jobs:
       - name: Settings Xml cat
         run: |
           cat settings.xml
+          cat ~/.m2/settings.xml
 
       - name: Prepare Release
         run: |
           # Use GITHUB_TOKEN to allow Maven to push changes
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
-          mvn -B -s $GITHUB_WORKSPACE/settings.xml release:prepare \
+          mvn -B release:prepare \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.nextVersion }}
 
       - name: Perform Release
-        run: mvn -s $GITHUB_WORKSPACE/settings.xml release:perform
+        run: mvn release:perform
         env:
           JSON_SPLITTER_GITHUB_TOKEN: ${{ github.token }} 
           GITHUB_TOKEN: ${{ github.token }}
