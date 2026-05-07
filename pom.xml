@@ -18,6 +18,12 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
+  <scm>
+    <connection>scm:git:https://github.com/zaragozamartin91/json-splitter.git</connection>
+    <developerConnection>scm:git:https://github.com/zaragozamartin91/json-splitter.git</developerConnection>
+    <url>https://github.com/zaragozamartin91/json-splitter</url>
+    <tag>HEAD</tag>
+  </scm>
   <dependencies>
     <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
     <dependency>
@@ -78,6 +84,17 @@
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>3.1.1</version>
+          <configuration>
+            <tagNameFormat>v@{project.version}</tagNameFormat>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <localCheckout>true</localCheckout>
+            <pushChanges>false</pushChanges>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
