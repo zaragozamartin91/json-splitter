@@ -47,8 +47,7 @@ jobs:
       - name: Prepare Release
         run: |
           # Use GITHUB_TOKEN to allow Maven to push changes
-          # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git remote set-url origin https://x-access-token:${{ secrets.JSON_SPLITTER_GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
           mvn -B release:prepare \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
