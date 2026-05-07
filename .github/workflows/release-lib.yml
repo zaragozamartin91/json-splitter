@@ -54,11 +54,13 @@ jobs:
             -DdevelopmentVersion=${{ github.event.inputs.nextVersion }}
 
       - name: Perform Release
-        run: mvn release:perform
+        run: |
+          echo "GITHUB_ACTOR=$GITHUB_ACTOR"
+          mvn release:perform
         env:
           JSON_SPLITTER_GITHUB_TOKEN: ${{ github.token }} 
           GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.JSON_SPLITTER_GITHUB_TOKEN }}
 
       - name: Push Changes
         run: |
