@@ -39,6 +39,10 @@ jobs:
         run: |
           git diff settings.xml
 
+      - name: Settings Xml cat
+        run: |
+          cat settings.xml
+
       - name: Prepare Release
         run: |
           # Use GITHUB_TOKEN to allow Maven to push changes
