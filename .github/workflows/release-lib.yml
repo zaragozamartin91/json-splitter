@@ -28,27 +28,29 @@ jobs:
             java-version: '8'
             distribution: 'corretto'
             server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-            # settings-path: ${{ github.workspace }} # location for the settings.xml file
+            settings-path: ${{ github.workspace }} # location for the settings.xml file
 
       - name: Configure Git User
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
+      - name: Settings Xml diff
+        run: |
+          git diff settings.xml
+
       - name: Prepare Release
         run: |
           # Use GITHUB_TOKEN to allow Maven to push changes
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
-          git diff settings.xml
-
-          ./mvnw --batch-mode -s $GITHUB_WORKSPACE/settings.xml release:prepare \
+          mvn -B -s $GITHUB_WORKSPACE/settings.xml release:prepare \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.nextVersion }}
 
       - name: Perform Release
         run: |
-          ./mvnw --batch-mode -s $GITHUB_WORKSPACE/settings.xml release:perform
+          mvn -B -s $GITHUB_WORKSPACE/settings.xml release:perform
 
       - name: Push Changes
         run: |
