@@ -40,13 +40,13 @@ jobs:
           # Use GITHUB_TOKEN to allow Maven to push changes
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
-          ./mvnw --batch-mode release:prepare \
+          ./mvnw --batch-mode -s $GITHUB_WORKSPACE/settings.xml release:prepare \
             -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
             -DdevelopmentVersion=${{ github.event.inputs.nextVersion }}
 
       - name: Perform Release
         run: |
-          ./mvnw --batch-mode release:perform
+          ./mvnw --batch-mode -s $GITHUB_WORKSPACE/settings.xml release:perform
 
       - name: Push Changes
         run: |
