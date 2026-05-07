@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.zaragozamartin91</groupId>
   <artifactId>json-splitter</artifactId>
-  <version>3.3-SNAPSHOT</version> <!-- versionPlaceholder -->
+  <version>3.3</version> <!-- versionPlaceholder -->
   <name>json-splitter</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
@@ -22,7 +22,7 @@
     <connection>scm:git:https://github.com/zaragozamartin91/json-splitter.git</connection>
     <developerConnection>scm:git:https://github.com/zaragozamartin91/json-splitter.git</developerConnection>
     <url>https://github.com/zaragozamartin91/json-splitter</url>
-    <tag>HEAD</tag>
+    <tag>v3.3</tag>
   </scm>
   <dependencies>
     <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
