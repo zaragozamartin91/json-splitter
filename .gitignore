@@ -26,3 +26,5 @@ replay_pid*
 .vscode/
 target/
 json-splitter-token
+
+gitcurrbranch.ps1
