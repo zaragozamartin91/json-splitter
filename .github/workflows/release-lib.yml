@@ -53,8 +53,10 @@ jobs:
             -DdevelopmentVersion=${{ github.event.inputs.nextVersion }}
 
       - name: Perform Release
-        run: |
-          mvn -s $GITHUB_WORKSPACE/settings.xml release:perform
+        run: mvn -s $GITHUB_WORKSPACE/settings.xml release:perform
+        env:
+          JSON_SPLITTER_GITHUB_TOKEN: ${{ github.token }} 
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Push Changes
         run: |
