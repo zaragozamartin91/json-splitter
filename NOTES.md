@@ -79,3 +79,37 @@ relies on these plugins
 * build-helper-maven-plugin
 * versions-maven-plugin
 
+## GithubActions CI with maven release plugin
+
+Prepare a release:
+
+```sh
+mvn -B release:prepare \
+  -DreleaseVersion=${{ releaseVersion }} \
+  -DdevelopmentVersion=${{ nextVersion }}
+```
+
+Deploy release:
+
+```sh
+mvn release:perform
+```
+
+Bypassing branch ruleset using deploy keys:
+* gh support site --> https://github.com/orgs/community/discussions/25305#discussioncomment-10728028
+* example github action --> https://github.com/sbellone/release-workflow-example/blob/main/.github/workflows/release.yml
+
+In order to bypass branch rulesets in github actions:
+1. Create a DEPLOY_KEY
+  * This is a public/private key pair
+2. Store the PRIVATE part as a secret
+3. Add DEPLOY_KEY as a bypass item in the branch ruleset
+4. Checkout the code in the gh action with the PRIVATE key:
+
+```yaml
+- name: Checkout code
+  uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+    ssh-key: ${{ secrets.GH_ACTION_DEPLOY_KEY }}
+```

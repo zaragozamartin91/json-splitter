@@ -36,3 +36,9 @@ jobs:
           git add .
           git commit -m "chore: STUB_FILE updated"
           git push origin main
+
+      - name: GH release
+        run: gh release create "Version $VERSION" --generate-notes --draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.next_version }}
