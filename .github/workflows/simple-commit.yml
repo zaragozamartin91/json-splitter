@@ -38,7 +38,7 @@ jobs:
           git push origin main
 
       - name: GH release
-        run: gh release create "Version $VERSION" --generate-notes --draft
+        run: gh release create "v${VERSION}" --generate-notes --draft
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.JSON_SPLITTER_GITHUB_TOKEN }}
           VERSION: ${{ inputs.next_version }}
