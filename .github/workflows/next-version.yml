@@ -24,11 +24,12 @@ jobs:
       - name: Augment version
         run: |
           curr_version=`./mvnw help:evaluate -Dexpression='project.version' -q -DforceStdout`
-          echo "curr_version = $curr_version"
+          release_version=`./version_sans_qualifier.sh "$curr_version"`
           next_version=`./increment_version.sh "$curr_version"`
-          echo "next_version = $next_version"
+          echo "release_version=$release_version" >> $GITHUB_ENV
           echo "next_version=$next_version" >> $GITHUB_ENV
 
       - name: Echo version
         run: |
+          echo "release_version = ${{ env.release_version }}"
           echo "next_version = ${{ env.next_version }}"
