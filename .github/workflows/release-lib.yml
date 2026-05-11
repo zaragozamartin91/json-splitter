@@ -2,13 +2,16 @@ name: release-lib
 
 on:
   workflow_dispatch: # Allows you to trigger the release manually from the UI
-    inputs:
-      releaseVersion:
-        description: 'Version to release (e.g. 1.1.0)'
-        required: true
-      nextVersion:
-        description: 'Next development version (e.g. 1.2.0-SNAPSHOT)'
-        required: true
+      inputs:        
+        versionScheme:
+          description: 'Version scheme to use'
+          required: true
+          type: choice
+          options:
+            - major
+            - major-minor
+            - major-minor-patch
+          default: 'major-minor-patch'
 
 jobs:
   release:
@@ -23,6 +26,15 @@ jobs:
           fetch-depth: 0
           ssh-key: ${{ secrets.GH_ACTION_DEPLOY_KEY }}
 
+      # Not specifying a settings.xml file defaulst to ~/.m2/settings.xml which holds:
+      # <servers>
+      #   <server>
+      #     <id>github</id>
+      #     <username>${env.GITHUB_ACTOR}</username>
+      #     <password>${env.GITHUB_TOKEN}</password>
+      #   </server>
+      # </servers>
+
       - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
@@ -36,24 +48,13 @@ jobs:
           git config --local user.email "github-actions@github.com"
           git config --local user.name "GitHub Actions"
 
-      - name: Settings Xml diff
+      - name: Config release versions
         run: |
-          git diff settings.xml
-
-      - name: Settings Xml cat
-        run: |
-          cat settings.xml
-          cat ~/.m2/settings.xml
-
-# ~/.m2/settings.xml holds:
-# <servers>
-#   <server>
-#     <id>github</id>
-#     <username>${env.GITHUB_ACTOR}</username>
-#     <password>${env.GITHUB_TOKEN}</password>
-#   </server>
-# </servers>
-
+          curr_version=`./mvnw help:evaluate -Dexpression='project.version' -q -DforceStdout`
+          release_version=`./version_sans_qualifier.sh "$curr_version"`
+          next_version=`./increment_version.sh "$curr_version"`
+          echo "release_version=$release_version" >> $GITHUB_ENV
+          echo "next_version=$next_version" >> $GITHUB_ENV
 
       - name: Prepare Release
         run: |
@@ -62,9 +63,10 @@ jobs:
           # git remote set-url origin https://x-access-token:${{ secrets.JSON_SPLITTER_GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
           mvn -B release:prepare \
-            -DreleaseVersion=${{ github.event.inputs.releaseVersion }} \
-            -DdevelopmentVersion=${{ github.event.inputs.nextVersion }}
+            -DreleaseVersion=${{ env.release_version }} \
+            -DdevelopmentVersion=${{ env.next_version }}
 
+      # mvn release:perform pushes a tag to github with value "v${release_version}"
       - name: Perform Release
         run: |
           echo "GITHUB_ACTOR=$GITHUB_ACTOR"
@@ -74,8 +76,13 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.JSON_SPLITTER_GITHUB_TOKEN }}
 
-# mvn release:perform pushes a tag to github vX.Y
 
       - name: Push Changes
         run: |
           git push origin main --tags
+
+      - name: GH release
+        run: gh release create "v${VERSION}" --generate-notes --draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.JSON_SPLITTER_GITHUB_TOKEN }}
+          VERSION: ${{ env.release_version }}

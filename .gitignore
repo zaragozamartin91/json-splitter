@@ -28,3 +28,9 @@ target/
 json-splitter-token
 
 gitcurrbranch.ps1
+
+# Ai stuff
+.ai
+.claude
+.qwen
+CLAUDE.md
