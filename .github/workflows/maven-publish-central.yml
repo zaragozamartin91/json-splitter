@@ -13,6 +13,11 @@ on:
             - major-minor-patch
           default: 'major-minor-patch'
 
+env:
+  MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+  MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -47,10 +52,6 @@ jobs:
 
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
-        env:
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
 
       - name: Configure git
@@ -70,7 +71,7 @@ jobs:
       # Maybe i should move the env vars from the jdk setup here?
       - name: Prepare Release
         run: |
-          mvn -B release:prepare \
+          mvn -B release:prepare -DskipTests \
             -DreleaseVersion=${{ env.release_version }} \
             -DdevelopmentVersion=${{ env.next_version }}
 
