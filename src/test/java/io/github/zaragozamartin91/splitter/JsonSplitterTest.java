@@ -10,16 +10,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /* Using java 8 & junit 5 ==> unit tests must hold the 'test' prefix */
 public class JsonSplitterTest {
-    private static final Logger log = Logger.getLogger(JsonSplitterTest.class.getName());
+    private static final ZeLogger log = ZeLogger.getLogger(JsonSplitterTest.class.getName());
 
     ObjectMapper mapper = new ObjectMapper();
 

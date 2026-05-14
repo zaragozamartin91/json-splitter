@@ -71,7 +71,7 @@ jobs:
       # Maybe i should move the env vars from the jdk setup here?
       - name: Prepare Release
         run: |
-          mvn -B release:prepare -DskipTests \
+          mvn -B release:prepare \
             -DreleaseVersion=${{ env.release_version }} \
             -DdevelopmentVersion=${{ env.next_version }}
 
@@ -85,7 +85,7 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.JSON_SPLITTER_GITHUB_TOKEN }}
 
-
+      # Pushing version bump and newly created tags
       - name: Push Changes
         run: |
           git push origin main --tags

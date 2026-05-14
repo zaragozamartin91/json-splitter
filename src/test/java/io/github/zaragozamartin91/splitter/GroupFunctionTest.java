@@ -11,13 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GroupFunctionTest {
-    private static final Logger log = Logger.getLogger(GroupFunctionTest.class.getName());
+    private static final ZeLogger log = ZeLogger.getLogger(GroupFunctionTest.class.getName());
 
     @Test
     public void testGroupByEntryCountYieldsAnEmptyListIfAnEmptyListIsPassed() {

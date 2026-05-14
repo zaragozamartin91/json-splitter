@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
 import com.github.wnameless.json.flattener.JsonFlattener;
 
@@ -13,7 +12,7 @@ import com.github.wnameless.json.flattener.JsonFlattener;
  */
 public class JsonFlattenerSpike {
 
-    private static final Logger log = Logger.getLogger(JsonFlattenerSpike.class.getName());
+    private static final ZeLogger log = ZeLogger.getLogger(JsonFlattenerSpike.class.getName());
 
     @Test
     public void testFlattenSampleData() throws IOException, URISyntaxException {
