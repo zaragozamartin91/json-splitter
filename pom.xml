@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.zaragozamartin91</groupId>
   <artifactId>json-splitter</artifactId>
-  <version>4.0.2</version>
+  <version>4.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>json-splitter</name>
   <description>Utility library for splitting JSON documents</description>
@@ -29,7 +29,7 @@
     <connection>scm:git:git://github.com/zaragozamartin91/json-splitter.git</connection>
     <developerConnection>scm:git:ssh://github.com:zaragozamartin91/json-splitter.git</developerConnection>
     <url>https://github.com/zaragozamartin91/json-splitter</url>
-    <tag>v4.0.2</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
