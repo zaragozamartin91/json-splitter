@@ -20,6 +20,7 @@ jobs:
       contents: write # Crucial: allows the bot to push commits and tags
     
     steps:
+      # Checking out the code using GH_ACTION_DEPLOY_KEY allows the bot to push commits
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -42,8 +43,8 @@ jobs:
           distribution: 'corretto'
 
           server-id: central
-          server-username: MAVEN_CENTRAL_USERNAME
-          server-password: MAVEN_CENTRAL_TOKEN
+          server-username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          server-password: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
 
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
