@@ -67,6 +67,7 @@ jobs:
           echo "release_version=$release_version" >> $GITHUB_ENV
           echo "next_version=$next_version" >> $GITHUB_ENV
 
+      # Maybe i should move the env vars from the jdk setup here?
       - name: Prepare Release
         run: |
           mvn -B release:prepare \
