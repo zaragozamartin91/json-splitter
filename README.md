@@ -1,6 +1,6 @@
 # JsonSplitter - Java JSON Splitter Library
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.zaragozamartin91.splitter/json-splitter)](https://central.sonatype.com/artifact/io.github.zaragozamartin91/json-splitter)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.zaragozamartin91/json-splitter?gav=io.github.zaragozamartin91:json-splitter)](https://central.sonatype.com/artifact/io.github.zaragozamartin91/json-splitter)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **JsonSplitter** is a lightweight Java library designed to split large JSON documents into smaller, manageable chunks while preserving JSON validity. Each resulting part can be independently processed, transmitted, or stored, making this library ideal for scenarios involving:

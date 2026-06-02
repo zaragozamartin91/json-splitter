@@ -25,15 +25,3 @@ replay_pid*
 
 .vscode/
 target/
-json-splitter-token
-
-gitcurrbranch.ps1
-
-# Ai stuff
-.ai
-.claude
-.qwen
-CLAUDE.md
-
-
-maven-central-settings.xml
