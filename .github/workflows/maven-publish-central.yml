@@ -67,6 +67,8 @@ jobs:
           next_version=`./increment_version.sh "$curr_version"`
           echo "release_version=$release_version" >> $GITHUB_ENV
           echo "next_version=$next_version" >> $GITHUB_ENV
+        env:
+          VERSION_SCHEME: ${{ github.event.inputs.versionScheme }}
 
       # Maybe i should move the env vars from the jdk setup here?
       - name: Prepare Release
