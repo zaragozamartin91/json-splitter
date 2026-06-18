@@ -1,4 +1,4 @@
-name: maven-publish-central
+name: maven-publish-central-auto
 
 on:
   workflow_dispatch: # Allows you to trigger the release manually from the UI
