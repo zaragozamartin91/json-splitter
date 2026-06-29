@@ -1,10 +1,12 @@
 package io.github.zaragozamartin91.splitter;
 
 import java.util.Map;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.wnameless.json.base.JacksonJsonValue;
+
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import com.github.wnameless.json.base.Jackson3JsonValue;
+import com.github.wnameless.json.base.JsonValueCore;
 import com.github.wnameless.json.flattener.JsonFlattener;
 
 import io.github.zaragozamartin91.splitter.JsonSource.ContentType;
@@ -27,7 +29,7 @@ class JsonUnit {
             case DICTIONARY:
                 Map<String, Object> dictionaryJson = source.getDictionaryJson();
                 JsonNode jsonNode = objectMapper.valueToTree(dictionaryJson);
-                JacksonJsonValue jsonVal = new JacksonJsonValue(jsonNode);
+                JsonValueCore<Jackson3JsonValue> jsonVal = new Jackson3JsonValue(jsonNode);
                 return new FlatJson(JsonFlattener.flattenAsMap(jsonVal));
             case FLAT_JSON:
                 return source.getFlatJson();

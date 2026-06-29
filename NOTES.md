@@ -266,3 +266,5 @@ It should generate these artifacts:
 
 Publish to maven central via `mvn clean deploy`
 
+
+**NOTE: for local builds, gpg signing can be skipped via `./mvnw clean install -Dgpg.skip=true`**

@@ -38,7 +38,7 @@
 - **Key Pre-Sorting**: Sort keys alphabetically before applying split logic
 - **Preserved Structure**: Each output part is a valid JSON object
 - **Unflatten Capability**: Reconstruct original nested structure from flattened parts
-- **Java 8+ Compatible**: Works with Java 8 and newer versions
+- **Java 8+ Compatible**: Works with Java 11 and newer versions
 
 ---
 
