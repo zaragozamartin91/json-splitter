@@ -13,10 +13,20 @@ public class JsonUnflattener {
     public UnflattenedJson unflatten(Map<String, Object> theFlatMap) {
         if (theFlatMap == null || theFlatMap.isEmpty()) return new UnflattenedJson(theFlatMap);
 
-//        boolean isPureArray = theFlatMap.entrySet().stream().anyMatch(entry -> {
-//            HeadAndTail headAndTail = HeadAndTail.from(entry.getKey());
-//            return isPureArrayKey(headAndTail.head);
-//        });
+        boolean isPureArray = theFlatMap.entrySet().stream().anyMatch(entry -> {
+            HeadAndTail headAndTail = HeadAndTail.from(entry.getKey());
+            return isPureArrayKey(headAndTail.head);
+        });
+
+        if (isPureArray) {
+            List<Object> rootArray = new ArrayList<>();
+            for (Map.Entry<String, Object> entry : theFlatMap.entrySet()) {
+                String path = entry.getKey();
+                Object value = entry.getValue();
+                setIntermediateArray(rootArray, ArrayKeyAndIndex.from(path), value);
+            }
+            return new UnflattenedJson(rootArray);
+        }
 
         Map<String, Object> root = new LinkedHashMap<>();
 
@@ -54,16 +64,20 @@ public class JsonUnflattener {
         ArrayKeyAndIndex arrayKeyAndIndex = ArrayKeyAndIndex.from(headAndTail);
         if (arrayKeyAndIndex.isFieldArray()) {
             ArrayList<Object> theArray = (ArrayList<Object>) root.computeIfAbsent(arrayKeyAndIndex.key, key -> new ArrayList<>());
-            ArrayKeyAndIndex arrayKeyAndIndexSansKey = arrayKeyAndIndex.consumeKey();
-            HeadAndTail arrayHeadAndTailSansKey = new HeadAndTail(arrayKeyAndIndexSansKey.keyIndexText(), headAndTail.tail);
-            setIntermediateArray(theArray, arrayKeyAndIndex.index, arrayHeadAndTailSansKey.fullPath(), value);
+            setIntermediateArray(theArray, arrayKeyAndIndex, value);
             return;
         }
 
         unflatten(root, headAndTail.tailPath(), value);
     }
 
-    private void setIntermediateArray(ArrayList<Object> rootArray,
+    private void setIntermediateArray(List<Object> theArray, ArrayKeyAndIndex arrayKeyAndIndex, Object value) {
+        ArrayKeyAndIndex arrayKeyAndIndexSansKey = arrayKeyAndIndex.consumeKey();
+        HeadAndTail arrayHeadAndTailSansKey = new HeadAndTail(arrayKeyAndIndexSansKey.keyIndexText(), arrayKeyAndIndex.tail);
+        setIntermediateArray(theArray, arrayKeyAndIndex.index, arrayHeadAndTailSansKey.fullPath(), value);
+    }
+
+    private void setIntermediateArray(List<Object> rootArray,
                                       int index,
                                       String path,
                                       Object value) {
@@ -109,7 +123,7 @@ public class JsonUnflattener {
         setArrayValue(theArray, index, value);
     }
 
-    private static void setArrayValue(ArrayList<Object> theArray, int index, Object value) {
+    private static void setArrayValue(List<Object> theArray, int index, Object value) {
         int expectedSize = index + 1;
         if (theArray.size() < expectedSize) theArray.add(value);
         else theArray.set(index, value);
@@ -125,7 +139,7 @@ public class JsonUnflattener {
      * @param <T> Type of the expected return value
      */
     @SuppressWarnings("unchecked")
-    private static <T> T upsertArrayValue(ArrayList<Object> theArray, int index, Supplier<T> valueSupplier) {
+    private static <T> T upsertArrayValue(List<Object> theArray, int index, Supplier<T> valueSupplier) {
         int expectedSize = index + 1;
         if (theArray.size() < expectedSize) {
             T value = valueSupplier.get();
@@ -198,11 +212,7 @@ public class JsonUnflattener {
         }
 
         static ArrayKeyAndIndex from(String path) {
-            Object[] keyIndexTuple = keyIndexTuple(path);
-            return new ArrayKeyAndIndex(
-                    (String) keyIndexTuple[0],
-                    (Integer) keyIndexTuple[1],
-                     null);
+            return from(HeadAndTail.from(path));
         }
 
         static ArrayKeyAndIndex from(HeadAndTail headAndTail) {

@@ -80,22 +80,25 @@ public class JsonUnflattenerTest {
         assertEquals("work", phone1.get("type"));
     }
 
-//    @Test
-//    public void testRootArrayUnflatten() throws Exception {
-//        String json = "[{\"name\":\"item1\"} , {\"name\":\"item2\"}]";
-//
-//        JsonFlattener flattener = new JsonFlattener();
-//        Map<String, Object> flat = flattener.flatten(json);
-//
-//        JsonUnflattener unflattener = new JsonUnflattener();
-//        Map<String, Object> result = unflattener.unflatten(flat).getJsonMap();
-//
-//        // Root is always Map per signature. Root will have keys "[0]" and "[1]".
-//        assertTrue(result.containsKey("[0]"));
-//        assertTrue(result.containsKey("[1]"));
-//        Map<String, Object> item1 = (Map<String, Object>) result.get("[0]");
-//        assertEquals("item1", item1.get("name"));
-//    }
+    @Test
+    public void testRootArrayUnflatten() throws Exception {
+        String json = "[{\"name\":\"item1\"} , {\"name\":\"item2\"}]";
+
+        JsonFlattener flattener = new JsonFlattener();
+        Map<String, Object> flat = flattener.flatten(json);
+
+        JsonUnflattener unflattener = new JsonUnflattener();
+        UnflattenedJson result = unflattener.unflatten(flat);
+
+        // Root is always Map per signature. Root will have keys "[0]" and "[1]".
+        assertEquals(2, result.getJsonArray().size());
+        Map<String, Object> item1 = (Map<String, Object>) result.getJsonArray().get(0);
+        assertEquals("item1", item1.get("name"));
+        Map<String, Object> item2 = (Map<String, Object>) result.getJsonArray().get(1);
+        assertEquals("item2", item2.get("name"));
+
+        assertEquals(UnflattenedJson.ResultType.JSON_ARRAY, result.resultType());
+    }
 
     @Test
     public void testIntegrationWithFlattener() throws Exception {
@@ -105,7 +108,8 @@ public class JsonUnflattenerTest {
         Map<String, Object> flat = flattener.flatten(json);
 
         JsonUnflattener unflattener = new JsonUnflattener();
-        Map<String, Object> result = unflattener.unflatten(flat).getJsonMap();
+        UnflattenedJson unflatten = unflattener.unflatten(flat);
+        Map<String, Object> result = unflatten.getJsonMap();
 
         assertEquals("John", result.get("name"));
         Map<String, Object> address = (Map<String, Object>) result.get("address");
@@ -115,5 +119,7 @@ public class JsonUnflattenerTest {
         List<Object> phones = (List<Object>) result.get("phones");
         Map<String, Object> phone0 = (Map<String, Object>) phones.get(0);
         assertEquals("123", phone0.get("number"));
+
+        assertEquals(UnflattenedJson.ResultType.JSON_MAP, unflatten.resultType());
     }
 }
