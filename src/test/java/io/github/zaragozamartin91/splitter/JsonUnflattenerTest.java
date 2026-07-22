@@ -101,6 +101,23 @@ public class JsonUnflattenerTest {
     }
 
     @Test
+    public void testPureArrayUnflatten() throws Exception {
+        String json = "[\"apple\", \"banana\", \"cherry\"]";
+
+        JsonFlattener flattener = new JsonFlattener();
+        Map<String, Object> flat = flattener.flatten(json);
+
+        JsonUnflattener unflattener = new JsonUnflattener();
+        UnflattenedJson result = unflattener.unflatten(flat);
+
+        assertEquals(UnflattenedJson.ResultType.JSON_ARRAY, result.resultType());
+        assertEquals(3, result.getJsonArray().size());
+        assertEquals("apple", result.getJsonArray().get(0));
+        assertEquals("banana", result.getJsonArray().get(1));
+        assertEquals("cherry", result.getJsonArray().get(2));
+    }
+
+    @Test
     public void testIntegrationWithFlattener() throws Exception {
         String json = "{\"name\":\"John\",\"address\":{\"city\":\"New York\",\"zip\":\"10001\"},\"tags\":[\"java\",\"json\"],\"phones\":[{\"number\":\"123\",\"type\":\"home\"},{\"number\":\"456\",\"type\":\"work\"}]}";
 

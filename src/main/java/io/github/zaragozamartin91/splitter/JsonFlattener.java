@@ -1,5 +1,6 @@
 package io.github.zaragozamartin91.splitter;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,7 +22,14 @@ public class JsonFlattener {
     }
 
     public Map<String, Object> flatten(String jsonString) throws Exception {
-        JsonNode root = mapper.readTree(jsonString);
+        return flatten(mapper.readTree(jsonString));
+    }
+
+    public Map<String, Object> flatten(File file) throws Exception {
+        return flatten(mapper.readTree(file));
+    }
+
+    private Map<String, Object> flatten(JsonNode root) {
         Map<String, Object> flatMap = new LinkedHashMap<>();
         doFlatten("", root, flatMap);
         return flatMap;
