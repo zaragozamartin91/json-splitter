@@ -1,11 +1,8 @@
-package io.github.zaragozamartin91.splitter;
+package io.github.zaragozamartin91.splitter.flat;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 

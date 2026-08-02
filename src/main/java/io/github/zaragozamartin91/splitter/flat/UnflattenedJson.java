@@ -1,4 +1,4 @@
-package io.github.zaragozamartin91.splitter;
+package io.github.zaragozamartin91.splitter.flat;
 
 import java.util.List;
 import java.util.Map;

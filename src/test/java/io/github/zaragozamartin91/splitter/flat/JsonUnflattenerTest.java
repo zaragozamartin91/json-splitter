@@ -1,4 +1,4 @@
-package io.github.zaragozamartin91.splitter;
+package io.github.zaragozamartin91.splitter.flat;
 
 import org.junit.jupiter.api.Test;
 import java.util.*;

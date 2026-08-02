@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 public enum SplitByEntryCount {
     INSTANCE;
 
-    static class StringObjectMap extends HashMap<String, Object> {}
-
     public List<Map<String, Object>> splitByEntryCount(Map<String, Object> input, int entryCount) {
         if (entryCount <= 0) throw new IllegalArgumentException("entryCount must be higher than 0");
 

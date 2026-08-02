@@ -1,10 +1,9 @@
-package io.github.zaragozamartin91.splitter;
+package io.github.zaragozamartin91.splitter.flat;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +28,11 @@ public class JsonFlattener {
         return flatten(mapper.readTree(file));
     }
 
+    public Map<String, Object> flatten(Map<String, Object> map) throws Exception {
+        JsonNode jsonNode = mapper.valueToTree(map);
+        return flatten(jsonNode);
+    }
+
     private Map<String, Object> flatten(JsonNode root) {
         Map<String, Object> flatMap = new LinkedHashMap<>();
         doFlatten("", root, flatMap);
@@ -48,7 +52,7 @@ public class JsonFlattener {
             return;
         }
         
-        if (node.isNull() && !keepNulls) return;
+        if (node.isNull() && discardNullValues()) return;
         
         if (node.isValueNode()) {
             // Map Jackson primitive types to Java types
@@ -60,14 +64,16 @@ public class JsonFlattener {
         }
     }
 
+    private boolean discardNullValues() {
+        return !keepNulls;
+    }
 
     private void flattenObjectNode(String currentPath, ObjectNode node, Map<String, Object> accumulator) {
-        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> entry = fields.next();
+        for (Iterator<Map.Entry<String, JsonNode>> it = node.fields(); it.hasNext(); ) {
+            Map.Entry<String, JsonNode> entry = it.next();
             String newPath = currentPath.isEmpty()
-                ? entry.getKey()
-                : String.format("%s.%s", currentPath, entry.getKey());
+                    ? entry.getKey()
+                    : String.format("%s.%s", currentPath, entry.getKey());
             doFlatten(newPath, entry.getValue(), accumulator);
         }
     }
