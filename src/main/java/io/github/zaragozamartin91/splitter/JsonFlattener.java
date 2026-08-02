@@ -35,16 +35,16 @@ public class JsonFlattener {
         return flatMap;
     }
 
-    private void doFlatten(String currentPath, JsonNode node, Map<String, Object> map) {
+    private void doFlatten(String currentPath, JsonNode node, Map<String, Object> accumulator) {
         if (node == null) return;
 
         if (node.isObject()) {
-            flattenObjectNode(currentPath, (ObjectNode) node, map);
+            flattenObjectNode(currentPath, (ObjectNode) node, accumulator);
             return;
         } 
         
         if (node.isArray()) {
-            flattenArrayNode(currentPath, (ArrayNode) node, map);
+            flattenArrayNode(currentPath, (ArrayNode) node, accumulator);
             return;
         }
         
@@ -52,29 +52,29 @@ public class JsonFlattener {
         
         if (node.isValueNode()) {
             // Map Jackson primitive types to Java types
-            if (node.isBoolean()) map.put(currentPath, node.asBoolean());
-            else if (node.isLong()) map.put(currentPath, node.asLong());
-            else if (node.isInt()) map.put(currentPath, node.asInt());
-            else if (node.isDouble()) map.put(currentPath, node.asDouble());
-            else map.put(currentPath, node.asText());
+            if (node.isBoolean()) accumulator.put(currentPath, node.asBoolean());
+            else if (node.isLong()) accumulator.put(currentPath, node.asLong());
+            else if (node.isInt()) accumulator.put(currentPath, node.asInt());
+            else if (node.isDouble()) accumulator.put(currentPath, node.asDouble());
+            else accumulator.put(currentPath, node.asText());
         }
     }
 
 
-    private void flattenObjectNode(String currentPath, ObjectNode node, Map<String, Object> map) {
+    private void flattenObjectNode(String currentPath, ObjectNode node, Map<String, Object> accumulator) {
         Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
         while (fields.hasNext()) {
             Map.Entry<String, JsonNode> entry = fields.next();
             String newPath = currentPath.isEmpty()
                 ? entry.getKey()
                 : String.format("%s.%s", currentPath, entry.getKey());
-            doFlatten(newPath, entry.getValue(), map);
+            doFlatten(newPath, entry.getValue(), accumulator);
         }
     }
 
-    private void flattenArrayNode(String currentPath, ArrayNode node, Map<String, Object> map) {
+    private void flattenArrayNode(String currentPath, ArrayNode node, Map<String, Object> accumulator) {
         for (int i = 0; i < node.size(); i++) {
-            doFlatten(String.format("%s[%d]", currentPath, i), node.get(i), map);
+            doFlatten(String.format("%s[%d]", currentPath, i), node.get(i), accumulator);
         }
     }
 }
