@@ -39,23 +39,12 @@ public class JsonFlattener {
         if (node == null) return;
 
         if (node.isObject()) {
-            ObjectNode objectNode = (ObjectNode) node;
-            Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> entry = fields.next();
-                String newPath = currentPath.isEmpty() 
-                    ? entry.getKey() 
-                    : currentPath + "." + entry.getKey();
-                doFlatten(newPath, entry.getValue(), map);
-            }
+            flattenObjectNode(currentPath, (ObjectNode) node, map);
             return;
         } 
         
         if (node.isArray()) {
-            ArrayNode arrayNode = (ArrayNode) node;
-            for (int i = 0; i < arrayNode.size(); i++) {
-                doFlatten(currentPath + "[" + i + "]", arrayNode.get(i), map);
-            }
+            flattenArrayNode(currentPath, (ArrayNode) node, map);
             return;
         }
         
@@ -68,6 +57,24 @@ public class JsonFlattener {
             else if (node.isInt()) map.put(currentPath, node.asInt());
             else if (node.isDouble()) map.put(currentPath, node.asDouble());
             else map.put(currentPath, node.asText());
+        }
+    }
+
+
+    private void flattenObjectNode(String currentPath, ObjectNode node, Map<String, Object> map) {
+        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> entry = fields.next();
+            String newPath = currentPath.isEmpty()
+                ? entry.getKey()
+                : String.format("%s.%s", currentPath, entry.getKey());
+            doFlatten(newPath, entry.getValue(), map);
+        }
+    }
+
+    private void flattenArrayNode(String currentPath, ArrayNode node, Map<String, Object> map) {
+        for (int i = 0; i < node.size(); i++) {
+            doFlatten(String.format("%s[%d]", currentPath, i), node.get(i), map);
         }
     }
 }
