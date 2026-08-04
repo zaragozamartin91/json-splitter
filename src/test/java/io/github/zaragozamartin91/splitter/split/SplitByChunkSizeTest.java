@@ -67,4 +67,39 @@ class SplitByChunkSizeTest {
                 result.stream().map(Map::keySet).flatMap(Collection::stream).collect(Collectors.toSet())
         );
     }
+
+    @Test
+    void testSizeIntervalValid() {
+        assertDoesNotThrow(() -> new SizeInterval(100, 200));
+    }
+
+    @Test
+    void testSizeIntervalSameSize() {
+        assertDoesNotThrow(() -> new SizeInterval(100, 100));
+    }
+
+    @Test
+    void testSizeIntervalMinZero() {
+        assertThrows(IllegalArgumentException.class, () -> new SizeInterval(0, 200));
+    }
+
+    @Test
+    void testSizeIntervalMinNegative() {
+        assertThrows(IllegalArgumentException.class, () -> new SizeInterval(-1, 200));
+    }
+
+    @Test
+    void testSizeIntervalMaxZero() {
+        assertThrows(IllegalArgumentException.class, () -> new SizeInterval(100, 0));
+    }
+
+    @Test
+    void testSizeIntervalMaxNegative() {
+        assertThrows(IllegalArgumentException.class, () -> new SizeInterval(100, -1));
+    }
+
+    @Test
+    void testSizeIntervalMaxLessThanMin() {
+        assertThrows(IllegalArgumentException.class, () -> new SizeInterval(200, 100));
+    }
 }
