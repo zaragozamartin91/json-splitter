@@ -6,9 +6,7 @@ import io.github.zaragozamartin91.splitter.TestUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +40,8 @@ class SplitByChunkSizeTest {
                 input,
                 targetSize - delta,
                 targetSize + delta,
-                sizeFunction
+                sizeFunction,
+                SplitByChunkSizeTest::newLinkedHashMap
         );
 
         assertNotNull(result);
@@ -66,6 +65,14 @@ class SplitByChunkSizeTest {
                 input.keySet(),
                 result.stream().map(Map::keySet).flatMap(Collection::stream).collect(Collectors.toSet())
         );
+    }
+
+    private static LinkedHashMap<String, Object> newLinkedHashMap(List<Map.Entry<String, Object>> entries) {
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : entries) {
+            map.put(entry.getKey(), entry.getValue());
+        }
+        return map;
     }
 
     @Test

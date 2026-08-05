@@ -22,7 +22,8 @@ public enum SplitByChunkSize {
             Map<String, Object> input,
             long minSizeBytes,
             long maxSizeBytes,
-            Function<Object, Long> sizeFunction) {
+            Function<Object, Long> sizeFunction,
+            Function<List<Map.Entry<String, Object>>, Map<String, Object>> mapCreator) {
         if (Objects.isNull(input)) throw new IllegalArgumentException("Cannot split a null map");
 
         SizeInterval sizeInterval = new SizeInterval(minSizeBytes, maxSizeBytes);
@@ -38,7 +39,8 @@ public enum SplitByChunkSize {
                 orderedInput,
                 sizeInterval,
                 sizeFunction,
-                mapList
+                mapList,
+                mapCreator
         );
 
         return mapList;
@@ -48,7 +50,8 @@ public enum SplitByChunkSize {
             LinkedHashMap<String, Object> input,
             SizeInterval sizeInterval,
             Function<Object, Long> sizeFunction,
-            ArrayList<Map<String, Object>> mapList
+            ArrayList<Map<String, Object>> mapList,
+            Function<List<Map.Entry<String, Object>>, Map<String, Object>> mapCreator
     ) {
         Long inputSizeBytes = sizeFunction.apply(input);
         /* No need to do any splitting if the total size of the input is smaller than the requested chunk size */
@@ -73,8 +76,8 @@ public enum SplitByChunkSize {
             leftWindow = leftWindow.normalize();
             rightWindow = rightWindow.normalize();
 
-            leftHeftyMap = memoize(memoizedMaps, leftWindow, inputEntryList, sizeFunction);
-            rightHeftyMap = memoize(memoizedMaps, rightWindow, inputEntryList, sizeFunction);
+            leftHeftyMap = memoize(memoizedMaps, leftWindow, inputEntryList, sizeFunction, mapCreator);
+            rightHeftyMap = memoize(memoizedMaps, rightWindow, inputEntryList, sizeFunction, mapCreator);
 
             if (memoizedWindows.contains(leftWindow)) {
                 /* This position has already been visited ; store the map as part of the final result */
@@ -125,24 +128,20 @@ public enum SplitByChunkSize {
             HashMap<Window, HeftyMap<String, Object>> memoizedMaps,
             Window window,
             ArrayList<Map.Entry<String, Object>> entryList,
-            Function<Object, Long> sizeFunction
+            Function<Object, Long> sizeFunction,
+            Function<List<Map.Entry<String, Object>>, Map<String, Object>> mapCreator
     ) {
         if (memoizedMaps.containsKey(window)) {
             return memoizedMaps.get(window);
         } else {
             List<Map.Entry<String, Object>> subEntries = window.subList(entryList);
-            Map<String, Object> subMap = newMap(subEntries);
+            Map<String, Object> subMap = mapCreator.apply(subEntries);
             HeftyMap<String, Object> newHeftyMap = new HeftyMap<>(subMap, sizeFunction.apply(subMap));
             memoizedMaps.put(window, newHeftyMap);
             return newHeftyMap;
         }
     }
 
-    private static Map<String, Object> newMap(List<Map.Entry<String, Object>> leftEntries) {
-        LinkedHashMap<String, Object> theMap = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> entry : leftEntries) theMap.put(entry.getKey(), entry.getValue());
-        return theMap;
-    }
 }
 
 
