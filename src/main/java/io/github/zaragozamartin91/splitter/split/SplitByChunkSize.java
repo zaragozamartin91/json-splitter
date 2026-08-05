@@ -3,6 +3,7 @@ package io.github.zaragozamartin91.splitter.split;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static io.github.zaragozamartin91.splitter.split.Operation.*;
 import static java.math.RoundingMode.HALF_UP;
@@ -32,56 +33,54 @@ public enum SplitByChunkSize {
 
         if (input.size() == 1) return List.of(input);
 
-        ArrayList<Map<String, Object>> mapList = new ArrayList<>();
         LinkedHashMap<String, Object> orderedInput = new LinkedHashMap<>(input);
 
-        splitByChunkSize(
+        List<HeftyMap> heftyMaps = splitByChunkSize(
                 orderedInput,
                 sizeInterval,
-                sizeFunction,
-                mapList,
-                mapCreator
+                sizeFunction
         );
 
-        return mapList;
+        return heftyMaps.stream().map(heftyMap -> heftyMap.toMap(mapCreator)).collect(Collectors.toList());
     }
 
-    private void splitByChunkSize(
+    private List<HeftyMap> splitByChunkSize(
             LinkedHashMap<String, Object> input,
             SizeInterval sizeInterval,
-            Function<Object, Long> sizeFunction,
-            ArrayList<Map<String, Object>> mapList,
-            Function<List<Map.Entry<String, Object>>, Map<String, Object>> mapCreator
+            Function<Object, Long> sizeFunction
     ) {
+        ArrayList<HeftyMap> accumulator = new ArrayList<>();
+
         Long inputSizeBytes = sizeFunction.apply(input);
+        List<Map.Entry<String, Object>> inputEntryList = new ArrayList<>(input.entrySet());
+
         /* No need to do any splitting if the total size of the input is smaller than the requested chunk size */
         if (sizeInterval.fits(inputSizeBytes)) {
-            mapList.add(input);
-            return;
+            accumulator.add(new HeftyMap(inputEntryList, inputSizeBytes));
+            return accumulator;
         }
 
         int inputEntryCount = input.size();
         BigDecimal avgEntrySizeBytes = averageEntrySize(input, inputSizeBytes);
-        ArrayList<Map.Entry<String, Object>> inputEntryList = new ArrayList<>(input.entrySet());
         Window leftWindow = new Window(0, divide(sizeInterval.mid(), avgEntrySizeBytes).intValue());
         Window rightWindow = leftWindow.shiftRight().resizeRight(inputEntryCount);
 
-        HashMap<Window, HeftyMap<String, Object>> memoizedMaps = new HashMap<>();
+        HashMap<Window, HeftyMap> memoizedEntries = new HashMap<>();
         HashSet<Window> memoizedWindows = new HashSet<>();
 
-        HeftyMap<String, Object> leftHeftyMap;
-        HeftyMap<String, Object> rightHeftyMap;
+        HeftyMap leftHeftyMap;
+        HeftyMap rightHeftyMap;
 
         while (leftWindow.active()) {
             leftWindow = leftWindow.normalize();
             rightWindow = rightWindow.normalize();
 
-            leftHeftyMap = memoize(memoizedMaps, leftWindow, inputEntryList, sizeFunction, mapCreator);
-            rightHeftyMap = memoize(memoizedMaps, rightWindow, inputEntryList, sizeFunction, mapCreator);
+            leftHeftyMap = memoize(memoizedEntries, leftWindow, inputEntryList, sizeFunction);
+            rightHeftyMap = memoize(memoizedEntries, rightWindow, inputEntryList, sizeFunction);
 
             if (memoizedWindows.contains(leftWindow)) {
                 /* This position has already been visited ; store the map as part of the final result */
-                mapList.add(leftHeftyMap.map);
+                accumulator.add(leftHeftyMap);
                 leftWindow = leftWindow.shiftRight().limit(inputEntryCount);
                 rightWindow = rightWindow.shiftRight(leftWindow.right).resizeRight(inputEntryCount);
                 continue;
@@ -90,7 +89,7 @@ public enum SplitByChunkSize {
             memoizedWindows.add(leftWindow);
 
             if (sizeInterval.fits(leftHeftyMap.sizeBytes)) {
-                mapList.add(leftHeftyMap.map);
+                accumulator.add(leftHeftyMap);
                 leftWindow = leftWindow.shiftRight().limit(inputEntryCount);
                 rightWindow = rightWindow.shiftRight(leftWindow.right).resizeRight(inputEntryCount);
             } else if (sizeInterval.tooSmall(leftHeftyMap.sizeBytes)) {
@@ -111,6 +110,7 @@ public enum SplitByChunkSize {
                 rightWindow = rightWindow.shiftRight(leftWindow.right).resizeRight(inputEntryCount);
             }
         }
+        return accumulator;
     }
 
     /**
@@ -124,19 +124,17 @@ public enum SplitByChunkSize {
         return divide(diffBytes, avgEntrySizeBytes).intValue();
     }
 
-    private static HeftyMap<String, Object> memoize(
-            HashMap<Window, HeftyMap<String, Object>> memoizedMaps,
+    private static HeftyMap memoize(
+            HashMap<Window, HeftyMap> memoizedMaps,
             Window window,
-            ArrayList<Map.Entry<String, Object>> entryList,
-            Function<Object, Long> sizeFunction,
-            Function<List<Map.Entry<String, Object>>, Map<String, Object>> mapCreator
+            List<Map.Entry<String, Object>> entryList,
+            Function<Object, Long> sizeFunction
     ) {
         if (memoizedMaps.containsKey(window)) {
             return memoizedMaps.get(window);
         } else {
             List<Map.Entry<String, Object>> subEntries = window.subList(entryList);
-            Map<String, Object> subMap = mapCreator.apply(subEntries);
-            HeftyMap<String, Object> newHeftyMap = new HeftyMap<>(subMap, sizeFunction.apply(subMap));
+            HeftyMap newHeftyMap = new HeftyMap(subEntries, sizeFunction.apply(subEntries));
             memoizedMaps.put(window, newHeftyMap);
             return newHeftyMap;
         }
@@ -277,23 +275,27 @@ final class SizeInterval {
 /**
  * Map with weight in bytes
  */
-final class HeftyMap<K,V> {
-    Map<K,V> map;
+final class HeftyMap {
+    List<Map.Entry<String, Object>> entries;
     long sizeBytes;
 
-    public HeftyMap(Map<K, V> map, long sizeBytes) {
-        this.map = map;
+    public HeftyMap(List<Map.Entry<String, Object>> entries, long sizeBytes) {
+        this.entries = entries;
         this.sizeBytes = sizeBytes;
     }
 
     BigDecimal averageEntrySizeBytes() {
-        if (Objects.isNull(map) || map.isEmpty() || sizeBytes <= 0) return BigDecimal.ZERO;
-        return divide(this.sizeBytes, this.map.size());
+        if (Objects.isNull(entries) || entries.isEmpty() || sizeBytes <= 0) return BigDecimal.ZERO;
+        return divide(this.sizeBytes, this.entries.size());
+    }
+
+    Map<String, Object> toMap(Function<List<Map.Entry<String, Object>>, Map<String, Object>> mapCreator) {
+        return mapCreator.apply(entries);
     }
 
     @Override
     public String toString() {
-        return String.format("{sizeBytes=%d,map=%s}", sizeBytes, map);
+        return String.format("{sizeBytes=%d,entries=%s}", sizeBytes, entries);
     }
 }
 
