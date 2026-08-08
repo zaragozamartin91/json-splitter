@@ -71,7 +71,7 @@ class SplitByChunkSizeTest {
         // Load fixture
         String json = TestUtil.utf8FileText("/sample-data-big.json");
         JsonFlattener jsonFlattener = new JsonFlattener();
-        Map<String, Object> input = jsonFlattener.flatten(json);
+        Map<String, Object> input = jsonFlattener.flatten(json).jsonMap();
 
         // Size function: JSON byte length
         Function<Object, Long> sizeFunction = this::flatMapSizeAsBytes;

@@ -85,7 +85,7 @@ public class JsonUnflattenerTest {
         String json = "[{\"name\":\"item1\"} , {\"name\":\"item2\"}]";
 
         JsonFlattener flattener = new JsonFlattener();
-        Map<String, Object> flat = flattener.flatten(json);
+        Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
         JsonUnflattener unflattener = new JsonUnflattener();
         ExpandedJson result = unflattener.unflatten(flat);
@@ -105,7 +105,7 @@ public class JsonUnflattenerTest {
         String json = "[\"apple\", \"banana\", \"cherry\"]";
 
         JsonFlattener flattener = new JsonFlattener();
-        Map<String, Object> flat = flattener.flatten(json);
+        Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
         JsonUnflattener unflattener = new JsonUnflattener();
         ExpandedJson result = unflattener.unflatten(flat);
@@ -122,7 +122,7 @@ public class JsonUnflattenerTest {
         String json = "{\"name\":\"John\",\"address\":{\"city\":\"New York\",\"zip\":\"10001\"},\"tags\":[\"java\",\"json\"],\"phones\":[{\"number\":\"123\",\"type\":\"home\"},{\"number\":\"456\",\"type\":\"work\"}]}";
 
         JsonFlattener flattener = new JsonFlattener();
-        Map<String, Object> flat = flattener.flatten(json);
+        Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
         JsonUnflattener unflattener = new JsonUnflattener();
         ExpandedJson unflatten = unflattener.unflatten(flat);

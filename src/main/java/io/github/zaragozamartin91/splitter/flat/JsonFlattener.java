@@ -20,17 +20,17 @@ public class JsonFlattener {
         return this;
     }
 
-    public Map<String, Object> flatten(String jsonString) throws Exception {
-        return flatten(mapper.readTree(jsonString));
+    public FlatJson flatten(String jsonString) throws Exception {
+        return new FlatJson(flatten(mapper.readTree(jsonString)));
     }
 
-    public Map<String, Object> flatten(File file) throws Exception {
-        return flatten(mapper.readTree(file));
+    public FlatJson flatten(File file) throws Exception {
+        return new FlatJson(flatten(mapper.readTree(file)));
     }
 
-    public Map<String, Object> flatten(Map<String, Object> map) throws Exception {
+    public FlatJson flatten(Map<String, Object> map) throws Exception {
         JsonNode jsonNode = mapper.valueToTree(map);
-        return flatten(jsonNode);
+        return new FlatJson(flatten(jsonNode));
     }
 
     private Map<String, Object> flatten(JsonNode root) {

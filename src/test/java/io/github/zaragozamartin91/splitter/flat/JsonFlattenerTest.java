@@ -14,7 +14,7 @@ class JsonFlattenerTest {
     @Test
     void testFlattenSimple() throws Exception {
         String json = "{\"name\": \"John\", \"age\": 30}";
-        Map<String, Object> result = flattener.flatten(json);
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
 
         assertEquals(2, result.size());
         assertEquals("John", result.get("name"));
@@ -24,7 +24,7 @@ class JsonFlattenerTest {
     @Test
     void testFlattenNestedObject() throws Exception {
         String json = "{\"user\": {\"id\": 1, \"profile\": {\"name\": \"John\"}}}";
-        Map<String, Object> result = flattener.flatten(json);
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
 
         assertEquals(2, result.size());
         assertEquals(1, result.get("user.id"));
@@ -34,7 +34,7 @@ class JsonFlattenerTest {
     @Test
     void testFlattenArray() throws Exception {
         String json = "{\"tags\": [\"java\", \"json\"]}";
-        Map<String, Object> result = flattener.flatten(json);
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
 
         assertEquals(2, result.size());
         assertEquals("java", result.get("tags[0]"));
@@ -44,7 +44,7 @@ class JsonFlattenerTest {
     @Test
     void testFlattenNestedArrayOfObjects() throws Exception {
         String json = "{\"friends\": [{\"id\": 0, \"name\": \"Alice\"}, {\"id\": 1, \"name\": \"Bob\"}]}";
-        Map<String, Object> result = flattener.flatten(json);
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
 
         assertEquals(4, result.size());
         assertEquals(0, result.get("friends[0].id"));
@@ -58,12 +58,12 @@ class JsonFlattenerTest {
         String json = "{\"a\": null, \"b\": \"value\"}";
 
         // Test default: keepNulls = true
-        Map<String, Object> resultWithNulls = flattener.flatten(json);
+        Map<String, Object> resultWithNulls = flattener.flatten(json).jsonMap();
         assertTrue(resultWithNulls.containsKey("a"), "Should keep nulls by default");
         assertEquals("value", resultWithNulls.get("b"));
 
         // Test discardNulls()
-        Map<String, Object> resultWithoutNulls = new JsonFlattener().discardNulls().flatten(json);
+        Map<String, Object> resultWithoutNulls = new JsonFlattener().discardNulls().flatten(json).jsonMap();
         assertEquals(1, resultWithoutNulls.size());
         assertFalse(resultWithoutNulls.containsKey("a"), "Should discard nulls when requested");
         assertEquals("value", resultWithoutNulls.get("b"));
@@ -72,7 +72,7 @@ class JsonFlattenerTest {
     @Test
     void testFlattenMixedTypes() throws Exception {
         String json = "{\"bool\": true, \"long\": 1234567890123, \"double\": 12.34, \"int\": 42, \"text\": \"hello\"}";
-        Map<String, Object> result = flattener.flatten(json);
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
 
         assertEquals(true, result.get("bool"));
         assertEquals(1234567890123L, result.get("long"));
@@ -84,7 +84,7 @@ class JsonFlattenerTest {
     @Test
     void testFlattenWithFixture() throws Exception {
         String json = new String(Files.readAllBytes(Paths.get("src/test/resources/sample-data.json")));
-        Map<String, Object> result = flattener.flatten(json);
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
 
         assertNotNull(result);
         assertEquals("Randall Trujillo", result.get("name"));
@@ -99,7 +99,7 @@ class JsonFlattenerTest {
     @Test
     void testFlattenWithComplexFixture() throws Exception {
         String json = new String(Files.readAllBytes(Paths.get("src/test/resources/complex-data.json")));
-        Map<String, Object> result = flattener.flatten(json);
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
 
         assertNotNull(result);
         assertEquals("68b6a6ab8ac05f848f1e506d", result.get("_id"));
