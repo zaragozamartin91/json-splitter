@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 public class JsonUnflattener {
 
     /* Todo : unflatten may return a list | array instead of a map */
-    public UnflattenedJson unflatten(Map<String, Object> theFlatMap) {
-        if (theFlatMap == null || theFlatMap.isEmpty()) return new UnflattenedJson(theFlatMap);
+    public ExpandedJson unflatten(Map<String, Object> theFlatMap) {
+        if (theFlatMap == null || theFlatMap.isEmpty()) return new ExpandedJson(theFlatMap);
 
         boolean isPureArray = theFlatMap.entrySet().stream().anyMatch(entry -> {
             HeadAndTail headAndTail = HeadAndTail.from(entry.getKey());
@@ -25,7 +25,7 @@ public class JsonUnflattener {
                 Object value = entry.getValue();
                 setIntermediateArray(rootArray, ArrayKeyAndIndex.from(path), value);
             }
-            return new UnflattenedJson(rootArray);
+            return new ExpandedJson(rootArray);
         }
 
         Map<String, Object> root = new LinkedHashMap<>();
@@ -36,7 +36,7 @@ public class JsonUnflattener {
             unflatten(root, path, value);
         }
 
-        return new UnflattenedJson(root);
+        return new ExpandedJson(root);
     }
 
     @SuppressWarnings("unchecked")

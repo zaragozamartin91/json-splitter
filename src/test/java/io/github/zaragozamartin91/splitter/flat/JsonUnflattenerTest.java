@@ -88,7 +88,7 @@ public class JsonUnflattenerTest {
         Map<String, Object> flat = flattener.flatten(json);
 
         JsonUnflattener unflattener = new JsonUnflattener();
-        UnflattenedJson result = unflattener.unflatten(flat);
+        ExpandedJson result = unflattener.unflatten(flat);
 
         // Root is always Map per signature. Root will have keys "[0]" and "[1]".
         assertEquals(2, result.getJsonArray().size());
@@ -97,7 +97,7 @@ public class JsonUnflattenerTest {
         Map<String, Object> item2 = (Map<String, Object>) result.getJsonArray().get(1);
         assertEquals("item2", item2.get("name"));
 
-        assertEquals(UnflattenedJson.ResultType.JSON_ARRAY, result.resultType());
+        assertEquals(ExpandedJson.ResultType.JSON_ARRAY, result.resultType());
     }
 
     @Test
@@ -108,9 +108,9 @@ public class JsonUnflattenerTest {
         Map<String, Object> flat = flattener.flatten(json);
 
         JsonUnflattener unflattener = new JsonUnflattener();
-        UnflattenedJson result = unflattener.unflatten(flat);
+        ExpandedJson result = unflattener.unflatten(flat);
 
-        assertEquals(UnflattenedJson.ResultType.JSON_ARRAY, result.resultType());
+        assertEquals(ExpandedJson.ResultType.JSON_ARRAY, result.resultType());
         assertEquals(3, result.getJsonArray().size());
         assertEquals("apple", result.getJsonArray().get(0));
         assertEquals("banana", result.getJsonArray().get(1));
@@ -125,7 +125,7 @@ public class JsonUnflattenerTest {
         Map<String, Object> flat = flattener.flatten(json);
 
         JsonUnflattener unflattener = new JsonUnflattener();
-        UnflattenedJson unflatten = unflattener.unflatten(flat);
+        ExpandedJson unflatten = unflattener.unflatten(flat);
         Map<String, Object> result = unflatten.getJsonMap();
 
         assertEquals("John", result.get("name"));
@@ -137,6 +137,6 @@ public class JsonUnflattenerTest {
         Map<String, Object> phone0 = (Map<String, Object>) phones.get(0);
         assertEquals("123", phone0.get("number"));
 
-        assertEquals(UnflattenedJson.ResultType.JSON_MAP, unflatten.resultType());
+        assertEquals(ExpandedJson.ResultType.JSON_MAP, unflatten.resultType());
     }
 }

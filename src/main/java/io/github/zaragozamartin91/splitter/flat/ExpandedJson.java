@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class UnflattenedJson {
+public class ExpandedJson {
     private final Map<String, Object> jsonMap;
     private final List<Object> jsonArray;
 
-    UnflattenedJson(Map<String, Object> jsonMap) {
+    ExpandedJson(Map<String, Object> jsonMap) {
         this.jsonMap = jsonMap;
         jsonArray = null;
     }
 
-    UnflattenedJson(List<Object> jsonArray) {
+    ExpandedJson(List<Object> jsonArray) {
         jsonMap = null;
         this.jsonArray = jsonArray;
     }

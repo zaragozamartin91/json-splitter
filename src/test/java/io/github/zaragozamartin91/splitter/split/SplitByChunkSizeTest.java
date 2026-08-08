@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.zaragozamartin91.splitter.TestUtil;
 import io.github.zaragozamartin91.splitter.flat.JsonFlattener;
 import io.github.zaragozamartin91.splitter.flat.JsonUnflattener;
-import io.github.zaragozamartin91.splitter.flat.UnflattenedJson;
+import io.github.zaragozamartin91.splitter.flat.ExpandedJson;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -149,7 +149,7 @@ class SplitByChunkSizeTest {
     private static Map<String, Object> unflattenAndMap(Collection<Map.Entry<String, Object>> entries) {
         LinkedHashMap<String, Object> flatMap = newLinkedHashMap(entries);
         JsonUnflattener jsonUnflattener = new JsonUnflattener();
-        UnflattenedJson unflatten = jsonUnflattener.unflatten(flatMap);
+        ExpandedJson unflatten = jsonUnflattener.unflatten(flatMap);
         return unflatten.getJsonMap();
     }
 
