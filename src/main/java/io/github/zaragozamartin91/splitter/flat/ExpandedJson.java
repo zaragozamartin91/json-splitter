@@ -18,11 +18,11 @@ public class ExpandedJson {
         this.jsonArray = jsonArray;
     }
 
-    public Map<String, Object> getJsonMap() {
+    public Map<String, Object> jsonMap() {
         return jsonMap;
     }
 
-    public List<Object> getJsonArray() {
+    public List<Object> jsonArray() {
         return jsonArray;
     }
 

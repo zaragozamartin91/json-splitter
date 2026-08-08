@@ -12,6 +12,18 @@ class JsonFlattenerTest {
     private final JsonFlattener flattener = new JsonFlattener();
 
     @Test
+    void testFlattenPureArray() throws Exception {
+        String json = "[{\"id\": 1, \"name\": \"A\"}, {\"id\": 2, \"name\": \"B\"}]";
+        Map<String, Object> result = flattener.flatten(json).jsonMap();
+
+        assertEquals(4, result.size());
+        assertEquals(1, result.get("[0].id"));
+        assertEquals("A", result.get("[0].name"));
+        assertEquals(2, result.get("[1].id"));
+        assertEquals("B", result.get("[1].name"));
+    }
+
+    @Test
     void testFlattenSimple() throws Exception {
         String json = "{\"name\": \"John\", \"age\": 30}";
         Map<String, Object> result = flattener.flatten(json).jsonMap();

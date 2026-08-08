@@ -1,5 +1,6 @@
 package io.github.zaragozamartin91.splitter.split;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
@@ -140,6 +141,16 @@ public enum SplitByChunkSize {
         }
     }
 
+    public static long mapSizeAsBytes(Object obj, Function<Object, Integer> sizeInBytes) {
+        return JsonSize.mapSizeAsBytes(obj, sizeInBytes);
+    }
+
+
+    public static long flatMapSizeAsBytes(Object obj,
+                                   Function<Object, Integer> sizeInBytes,
+                                   Function<Collection<Map.Entry<String, Object>>, Map<String, Object>> unflatten) {
+        return JsonSize.flatMapSizeAsBytes(obj, sizeInBytes, unflatten);
+    }
 }
 
 
@@ -324,5 +335,40 @@ final class Operation {
 
     static BigDecimal divide(Number numerator, Number denominator) {
         return divide(bigDecimal(numerator), bigDecimal(denominator));
+    }
+}
+
+final class JsonSize {
+    static long mapSizeAsBytes(Object obj, Function<Object, Integer> sizeInBytes) {
+        Map<String, Object> theMap = obj instanceof Map
+                ? (Map<String, Object>) obj
+                : newLinkedHashMap((List<Map.Entry<String, Object>>) obj);
+        return sizeInBytes.apply(theMap);
+    }
+
+    static LinkedHashMap<String, Object> newLinkedHashMap(Collection<Map.Entry<String, Object>> entries) {
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : entries) map.put(entry.getKey(), entry.getValue());
+        return map;
+    }
+
+    static long flatMapSizeAsBytes(Object obj,
+                                    Function<Object, Integer> sizeInBytes,
+                                    Function<Collection<Map.Entry<String, Object>>, Map<String, Object>> unflatten) {
+        // a flat map
+        if (obj instanceof Map) {
+            Map<String, Object> flatMap = (Map<String, Object>) obj;
+            Map<String, Object> unflattened = unflatten.apply(flatMap.entrySet());
+            return mapSizeAsBytes(unflattened, sizeInBytes);
+        }
+
+        // an entry list
+        if (obj instanceof List) {
+            List<Map.Entry<String, Object>> entries = (List<Map.Entry<String, Object>>) obj;
+            Map<String, Object> unflattened = unflatten.apply(entries);
+            return mapSizeAsBytes(unflattened, sizeInBytes);
+        }
+
+        throw new IllegalArgumentException("Can't apply flatMapSizeAsBytes on " + obj);
     }
 }

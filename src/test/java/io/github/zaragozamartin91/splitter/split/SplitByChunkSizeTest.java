@@ -2,13 +2,13 @@ package io.github.zaragozamartin91.splitter.split;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.zaragozamartin91.splitter.JsonCodec;
 import io.github.zaragozamartin91.splitter.TestUtil;
 import io.github.zaragozamartin91.splitter.flat.JsonFlattener;
 import io.github.zaragozamartin91.splitter.flat.JsonUnflattener;
 import io.github.zaragozamartin91.splitter.flat.ExpandedJson;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -70,7 +70,7 @@ class SplitByChunkSizeTest {
     void testFlattenAndSplitByChunkSize() throws Exception {
         // Load fixture
         String json = TestUtil.utf8FileText("/sample-data-big.json");
-        JsonFlattener jsonFlattener = new JsonFlattener();
+        JsonFlattener jsonFlattener = new JsonFlattener(JsonCodec.instance());
         Map<String, Object> input = jsonFlattener.flatten(json).jsonMap();
 
         // Size function: JSON byte length
@@ -111,16 +111,9 @@ class SplitByChunkSizeTest {
     }
 
     private long mapSizeAsBytes(Object obj) {
-        try {
-            Map<String, Object> theMap = obj instanceof Map
-                    ? (Map<String, Object>) obj
-                    : newLinkedHashMap((List<Map.Entry<String, Object>>) obj);
-            return (long) mapper.writeValueAsBytes(theMap).length;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        JsonCodec jsonCodec = JsonCodec.instance();
+        return JsonSize.mapSizeAsBytes(obj, jsonCodec::sizeInBytes);
     }
-
 
     private static LinkedHashMap<String, Object> newLinkedHashMap(Collection<Map.Entry<String, Object>> entries) {
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
@@ -129,28 +122,15 @@ class SplitByChunkSizeTest {
     }
 
     private long flatMapSizeAsBytes(Object obj) {
-        // a flat map
-        if (obj instanceof Map) {
-            Map<String, Object> flatMap = (Map<String, Object>) obj;
-            Map<String, Object> unflattened = unflattenAndMap(flatMap.entrySet());
-            return mapSizeAsBytes(unflattened);
-        }
-
-        // an entry list
-        if (obj instanceof List) {
-            List<Map.Entry<String, Object>> entries = (List<Map.Entry<String, Object>>) obj;
-            Map<String, Object> unflattened = unflattenAndMap(entries);
-            return mapSizeAsBytes(unflattened);
-        }
-
-        throw new IllegalArgumentException("Can't apply flatMapSizeAsBytes on " + obj);
+        JsonCodec jsonCodec = JsonCodec.instance();
+        return JsonSize.flatMapSizeAsBytes(obj, jsonCodec::sizeInBytes, SplitByChunkSizeTest::unflattenAndMap);
     }
 
     private static Map<String, Object> unflattenAndMap(Collection<Map.Entry<String, Object>> entries) {
         LinkedHashMap<String, Object> flatMap = newLinkedHashMap(entries);
         JsonUnflattener jsonUnflattener = new JsonUnflattener();
         ExpandedJson unflatten = jsonUnflattener.unflatten(flatMap);
-        return unflatten.getJsonMap();
+        return unflatten.jsonMap();
     }
 
     @Test
