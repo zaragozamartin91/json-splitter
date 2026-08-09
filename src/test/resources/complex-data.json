@@ -1,0 +1,35 @@
+  {
+    "_id": "68b6a6ab8ac05f848f1e506d",
+    "index": 0,
+    "guid": "22f1253e-1390-4fe6-903f-9d58330993cb",
+    "bankAccounts": [
+      {
+        "iban": "DE89 3704 0044 0532 0130 00",
+        "isActive": true,
+        "balance": {
+          "currency": "EUR",
+          "amount": 234500
+        }
+      },
+      {
+        "iban": "SE12 9904 0044 0532 0130 00",
+        "isActive": true,
+        "balance": {
+          "currency": "SEK",
+          "amount": 1250000
+        }
+      }
+    ],
+    "name": "Randall Trujillo",
+    "gender": "male",
+    "email": "randalltrujillo@medicroix.com",
+    "phone": "+1 (901) 478-2321",
+    "biometrics": {
+      "height": 1.74,
+      "birthDate": "1995-06-26",
+      "face":{
+        "hairColor": "brown",
+        "eyeColor": "blue"
+      }
+    }
+  }

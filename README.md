@@ -24,8 +24,6 @@
   - [Split Equally into N Parts](#split-equally-into-n-parts)
   - [Split by Size (Bytes)](#split-by-size-bytes)
   - [Flattening Nested JSON](#flattening-nested-json)
-  - [Pre-Sorting Keys Before Split](#pre-sorting-keys-before-split)
-  - [Combining Options](#combining-options)
 - [API Reference](#api-reference)
 - [License](#license)
 
@@ -33,12 +31,10 @@
 
 ## Features
 
-- **Multiple Split Strategies**: Split by entry count, equal distribution, or byte size
-- **Flattening Support**: Automatically flatten nested JSON structures before splitting
-- **Key Pre-Sorting**: Sort keys alphabetically before applying split logic
-- **Preserved Structure**: Each output part is a valid JSON object
-- **Unflatten Capability**: Reconstruct original nested structure from flattened parts
-- **Java 8+ Compatible**: Works with Java 8 and newer versions
+- **Multiple Split Strategies**: Split by entry count, equal distribution, or byte-size chunks.
+- **Flattening Support**: Recursively flatten nested JSON structures before splitting to enable splitting on leaf nodes.
+- **Preserved Structure**: Each output part remains a valid JSON object or array.
+- **Java 8+ Compatible**: Lightweight and dependency-efficient.
 
 ---
 
@@ -50,14 +46,14 @@ Add JsonSplitter as a dependency in your Maven project's `pom.xml`:
 <dependency>
     <groupId>io.github.zaragozamartin91.splitter</groupId>
     <artifactId>json-splitter</artifactId>
-    <version>3.0</version>
+    <version>{latestVersion}</version>
 </dependency>
 ```
 
 For Gradle projects, add to your `build.gradle`:
 
 ```groovy
-implementation 'io.github.zaragozamartin91.splitter:json-splitter:3.0'
+implementation 'io.github.zaragozamartin91.splitter:json-splitter:{latestVersion}'
 ```
 
 ---
@@ -71,21 +67,19 @@ import io.github.zaragozamartin91.splitter.*;
 
 public class QuickStart {
     public static void main(String[] args) {
-        // 1. Create a JsonSource from a JSON string
-        JsonSource source = JsonSource.fromString(
-            "{\"key1\": \"value1\", \"key2\": \"value2\", \"key3\": \"value3\"}"
-        );
-
-        // 2. Define a split strategy (split by entry count)
-        SplitStrategy strategy = DynamicSplitStrategy.byEntryCount(2);
-
-        // 3. Split the JSON
-        JsonSplitter splitter = new JsonSplitter();
-        SplitJson result = splitter.split(source, strategy);
-
-        // 4. Access the parts
-        for (FlatJson part : result.getParts()) {
-            System.out.println(part.unflattenAsString());
+        // 1. Define configuration (e.g., split by entry count)
+        JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(2);
+        
+        // 2. Initialize the splitter with the config
+        JsonSplitter splitter = new JsonSplitter(config);
+        
+        // 3. Create a source and apply the split
+        JsonSource source = new JsonSource("{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\"}");
+        SplitJson result = splitter.apply(source);
+        
+        // 4. Process the resulting parts
+        for (JsonPart part : result.getParts()) {
+            System.out.println(part.jsonMap());
         }
     }
 }
@@ -93,8 +87,8 @@ public class QuickStart {
 
 **Output:**
 ```json
-{"key1":"value1","key2":"value2"}
-{"key3":"value3"}
+{"k1":"v1","k2":"v2"}
+{"k3":"v3"}
 ```
 
 ---
@@ -102,27 +96,21 @@ public class QuickStart {
 ## Core Concepts
 
 ### JsonSource
-Represents the input JSON data. Can be created from:
-- JSON strings
-- JSON files (file paths)
-- Java Maps
+Represents the input JSON data. It wraps the raw JSON string or source to be processed by the splitter.
 
-### SplitStrategy
-Defines how the JSON should be split. Use `DynamicSplitStrategy` for built-in strategies:
-- `byEntryCount(n)` - Each part contains at most `n` entries
-- `equally(n)` - Split into exactly `n` parts
-- `bySize(context)` - Each part is at most `n` bytes
+### JsonSplitterConfig
+A configuration object that defines how the splitting should occur. It is created via static factory methods (e.g., `splitByEntryCount`) and supports fluent modifiers like `.withFlatten()`.
+
+### JsonSplitter
+The main engine of the library. It is initialized with a `JsonSplitterConfig` and provides the `apply(JsonSource)` method to execute the splitting process.
 
 ### SplitJson
-Container holding all split parts. Access parts via:
-- `getPart(int index)` - Get a specific part by index
-- `getParts()` - Get all parts as a List
+A container holding the result of a split operation. It provides access to the resulting parts as a list.
 
-### FlatJson
-Represents a single split part with flattened keys. Provides:
-- `unflattenAsMap()` - Reconstruct nested structure as a Java Map
-- `unflattenAsString()` - Reconstruct nested structure as a JSON string
-- `getKeySet()` - Get all keys in this part
+### JsonPart
+Represents a single split segment of the original JSON. It provides access to the underlying data via:
+- `jsonMap()`: Returns the part as a `Map<String, Object>` if the part is a JSON object.
+- `jsonArray()`: Returns the part as a `List<Object>` if the part is a JSON array.
 
 ---
 
@@ -130,221 +118,114 @@ Represents a single split part with flattened keys. Provides:
 
 ### Split by Entry Count
 
-Split JSON so each part contains at most `n` key-value pairs:
+Split JSON so that each part contains at most `n` key-value pairs:
 
 ```java
-JsonSource source = JsonSource.fromString(
-    "{\"key1\": \"value1\", \"key2\": \"value2\", \"key3\": \"value3\"}"
-);
+JsonSource source = new JsonSource("{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\"}");
+JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(2);
+JsonSplitter splitter = new JsonSplitter(config);
 
-SplitStrategy strategy = DynamicSplitStrategy.byEntryCount(2);
-
-JsonSplitter splitter = new JsonSplitter();
-SplitJson splitJson = splitter.split(source, strategy);
-
-List<FlatJson> parts = splitJson.getParts();
-// Part 0: {"key1": "value1", "key2": "value2"}
-// Part 1: {"key3": "value3"}
+SplitJson result = splitter.apply(source);
+List<JsonPart> parts = result.getParts();
+// Part 0: 2 entries
+// Part 1: 1 entry
 ```
-
-**Verification:**
-```java
-FlatJson part0 = parts.get(0);
-FlatJson part1 = parts.get(1);
-
-assertEquals(2, part0.getKeySet().size());
-assertEquals(1, part1.getKeySet().size());
-```
-
----
 
 ### Split Equally into N Parts
 
-Distribute JSON entries evenly across a specified number of parts:
+Distribute JSON entries as evenly as possible across a specified number of parts:
 
 ```java
-String largeJson = "{\"a\":1,\"b\":2,\"c\":3,\"d\":4,\"e\":5,\"f\":6}";
-JsonSource source = JsonSource.fromString(largeJson);
+String json = "{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\", \"k4\":\"v4\"}";
+JsonSource source = new JsonSource(json);
+JsonSplitterConfig config = JsonSplitterConfig.splitByNumberOfParts(2);
+JsonSplitter splitter = new JsonSplitter(config);
 
-// Split into exactly 2 parts (3 entries each)
-SplitStrategy strategy = DynamicSplitStrategy.equally(2);
-
-JsonSplitter splitter = new JsonSplitter();
-SplitJson splitJson = splitter.split(source, strategy);
-
-List<FlatJson> parts = splitJson.getParts();
-// Part 0: 3 entries
-// Part 1: 3 entries
+SplitJson result = splitter.apply(source);
+List<JsonPart> parts = result.getParts();
+// Result: 2 parts with 2 entries each
 ```
-
----
 
 ### Split by Size (Bytes)
 
-Ensure each part does not exceed a specific byte size:
+Ensure each part's size falls within a specific byte range (min to max):
 
 ```java
-String jsonData = TestUtil.utf8FileText("/sample-data.json");
-JsonSource source = JsonSource.fromString(jsonData);
+JsonSource source = new JsonSource("..."); // Large JSON data
+JsonSplitterConfig config = JsonSplitterConfig.splitByChunkSize(128, 256);
+JsonSplitter splitter = new JsonSplitter(config);
 
-// Each part will be at most 128 bytes
-int sizeLimit = 128;
-GroupBySizeContext context = new GroupBySizeContext(sizeLimit);
-SplitStrategy strategy = DynamicSplitStrategy.bySize(context);
-
-JsonSplitter splitter = new JsonSplitter();
-SplitJson splitJson = splitter.split(source, strategy);
-
-// Verify all parts are under the size limit
-for (FlatJson part : splitJson.getParts()) {
-    String json = part.unflattenAsString();
-    assert json.getBytes().length <= sizeLimit;
+SplitJson result = splitter.apply(source);
+for (JsonPart part : result.getParts()) {
+    // Each part is within the 128-256 byte range
+    System.out.println(part.jsonMap());
 }
 ```
 
----
-
 ### Flattening Nested JSON
 
-When working with deeply nested JSON, use `.flatten()` to split on leaf entries:
+When working with deeply nested JSON, use `.withFlatten(true)` to split on leaf entries rather than top-level keys.
 
 **Input JSON:**
 ```json
 {
   "key1": "value1",
-  "key2": "value2",
   "parentKey": {
     "nestedKey0": "nestedValue0",
-    "nestedKey1": "nestedValue1",
-    "nestedKey2": "nestedValue2"
+    "nestedKey1": "nestedValue1"
   }
-}
-```
-
-**Flattened representation:**
-```json
-{
-  "key1": "value1",
-  "key2": "value2",
-  "parentKey.nestedKey0": "nestedValue0",
-  "parentKey.nestedKey1": "nestedValue1",
-  "parentKey.nestedKey2": "nestedValue2"
 }
 ```
 
 **Example:**
 ```java
-JsonSource source = JsonSource.fromString(
-    "{\"key1\": \"value1\", \"key2\": \"value2\", \"parentKey\": {" +
-    "\"nestedKey0\": \"nestedValue0\", \"nestedKey1\": \"nestedValue1\", " +
-    "\"nestedKey2\": \"nestedValue2\"}}"
-);
+JsonSource source = new JsonSource("..."); // Nested JSON
+JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(2)
+                                             .withFlatten(true);
+JsonSplitter splitter = new JsonSplitter(config);
 
-// Flatten before splitting by entry count
-SplitStrategy strategy = DynamicSplitStrategy
-    .byEntryCount(3)
-    .flatten();
-
-JsonSplitter splitter = new JsonSplitter();
-SplitJson splitJson = splitter.split(source, strategy);
-
-List<FlatJson> parts = splitJson.getParts();
-// Part 0: 3 entries (key1, key2, parentKey.nestedKey0)
-// Part 1: 2 entries (parentKey.nestedKey1, parentKey.nestedKey2)
-```
-
-**Rehydrating the nested structure:**
-```java
-FlatJson part0 = parts.get(0);
-Map<String, Object> restored = part0.unflattenAsMap();
-// restored = {
-//   "key1": "value1",
-//   "key2": "value2",
-//   "parentKey": {"nestedKey0": "nestedValue0"}
-// }
-```
-
----
-
-### Pre-Sorting Keys Before Split
-
-Sort keys alphabetically before applying the split strategy:
-
-```java
-JsonSource source = JsonSource.fromString(
-    "{\"zebra\": 1, \"apple\": 2, \"mango\": 3}"
-);
-
-// Sort keys in ascending order before splitting
-SplitStrategy strategy = DynamicSplitStrategy
-    .byEntryCount(2)
-    .preSortByKey(SortFunction.SortOrder.ASCENDING);
-
-JsonSplitter splitter = new JsonSplitter();
-SplitJson splitJson = splitter.split(source, strategy);
-
-// Part 0: {"apple": 2, "mango": 3}
-// Part 1: {"zebra": 1}
-```
-
----
-
-### Combining Options
-
-Chain multiple modifiers for complex splitting behavior:
-
-```java
-JsonSource source = JsonSource.fromString(largeNestedJson);
-
-// Flatten -> Sort keys -> Split equally into 2 parts
-SplitStrategy strategy = DynamicSplitStrategy
-    .equally(2)
-    .flatten()
-    .preSortByKey(SortFunction.SortOrder.ASCENDING);
-
-JsonSplitter splitter = new JsonSplitter();
-SplitJson splitJson = splitter.split(source, strategy);
+SplitJson result = splitter.apply(source);
+List<JsonPart> parts = result.getParts();
+// Each part contains leaf entries (e.g., "parentKey.nestedKey0")
+// The results are automatically expanded back to original nested structure
 ```
 
 ---
 
 ## API Reference
 
-### DynamicSplitStrategy Factory Methods
+### JsonSplitterConfig Factory Methods
 
 | Method | Description |
-|--------|-------------|
-| `byEntryCount(int n)` | Each part contains at most `n` entries |
-| `equally(int n)` | Split into exactly `n` parts |
-| `bySize(GroupBySizeContext ctx)` | Each part is at most `n` bytes |
+| :--- | :--- |
+| `splitByEntryCount(int n)` | Each part contains at most `n` entries. |
+| `splitByNumberOfParts(int n)` | Splits the JSON into exactly `n` parts. |
+| `splitByChunkSize(long min, long max)` | Splits into parts within the specified byte size range. |
 
-### DynamicSplitStrategy Modifiers
-
-| Method | Description |
-|--------|-------------|
-| `flatten()` | Flatten nested JSON before splitting |
-| `preSortByKey(SortOrder order)` | Sort keys before splitting (ASCENDING/DESCENDING) |
-
-### FlatJson Output Methods
+### JsonSplitterConfig Modifiers
 
 | Method | Description |
-|--------|-------------|
-| `unflattenAsMap()` | Reconstruct nested JSON as `Map<String, Object>` |
-| `unflattenAsString()` | Reconstruct nested JSON as JSON string |
-| `getKeySet()` | Get all keys in this part |
+| :--- | :--- |
+| `withFlatten(boolean enable)` | If true, recursively flattens nested structures before splitting. |
 
-### SplitJson Accessor Methods
+### JsonPart Data Access
 
 | Method | Description |
-|--------|-------------|
-| `getPart(int index)` | Get part at specified index |
-| `getParts()` | Get all parts as `List<FlatJson>` |
+| :--- | :--- |
+| `jsonMap()` | Returns the part as a `Map<String, Object>` (for JSON objects). |
+| `jsonArray()` | Returns the part as a `List<Object>` (for JSON arrays). |
+
+### SplitJson Results
+
+| Method | Description |
+| :--- | :--- |
+| `getParts()` | Returns the list of all resulting `JsonPart` segments. |
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). See the LICENSE file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). See the LICENSE file for more details.
 
 ---
 
