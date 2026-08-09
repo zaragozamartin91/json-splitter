@@ -11,7 +11,6 @@ public class JsonSourceNeo {
     /* Only one of these can be nonNull at a time */
     private String textJson;
     private Map<String, Object> dictionaryJson;
-    private FlatJson flatJson;
 
     public static JsonSourceNeo fromString(String jsonData) {
         return new JsonSourceNeo(Objects.requireNonNull(jsonData, "jsonData must not be null"));
@@ -36,10 +35,6 @@ public class JsonSourceNeo {
         }
     }
 
-    public static JsonSourceNeo fromFlatJson(FlatJson flatJson) {
-        return new JsonSourceNeo(flatJson);
-    }
-
     JsonSourceNeo(String jsonData) {
         this.textJson = jsonData;
     }
@@ -48,9 +43,6 @@ public class JsonSourceNeo {
         this.dictionaryJson = mapJson;
     }
 
-    JsonSourceNeo(FlatJson flatJson) {
-        this.flatJson = flatJson;
-    }
 
     String getTextJson() {
         return textJson;
@@ -60,10 +52,6 @@ public class JsonSourceNeo {
         return dictionaryJson;
     }
 
-    FlatJson getFlatJson() {
-        return flatJson;
-    }
-
     enum ContentType {
         TEXT, DICTIONARY, FLAT_JSON, NONE
     }
@@ -71,7 +59,6 @@ public class JsonSourceNeo {
     ContentType getContentType() {
         if (Objects.nonNull(textJson)) return ContentType.TEXT;
         if (Objects.nonNull(dictionaryJson)) return ContentType.DICTIONARY;
-        if (Objects.nonNull(flatJson)) return ContentType.FLAT_JSON;
         return ContentType.NONE;
     }
 
@@ -80,7 +67,6 @@ public class JsonSourceNeo {
         switch (getContentType()) {
             case TEXT: content=getTextJson(); break;
             case DICTIONARY: content=getDictionaryJson(); break;
-            case FLAT_JSON: content=getFlatJson(); break;
             case NONE: break;
         }
         return content;
