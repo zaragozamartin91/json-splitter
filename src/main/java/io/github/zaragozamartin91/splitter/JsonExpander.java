@@ -1,4 +1,4 @@
-package io.github.zaragozamartin91.splitter.flat;
+package io.github.zaragozamartin91.splitter;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@PublicApi
 public class JsonExpander {
 
     public ExpandedJson unflatten(Map<String, Object> theFlatMap) {

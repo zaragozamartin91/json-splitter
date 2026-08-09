@@ -11,12 +11,12 @@ import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class JsonCodec {
-    public static JsonCodec instance() { return new JsonCodec(); }
+class JsonCodec {
+    static JsonCodec instance() { return new JsonCodec(); }
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public JsonBox readTree(String jsonString) {
+    JsonBox readTree(String jsonString) {
         try {
             return new JsonBox(mapper.readTree(jsonString));
         } catch (JsonProcessingException e) {
@@ -24,7 +24,7 @@ public class JsonCodec {
         }
     }
 
-    public JsonBox readTree(File file) {
+    JsonBox readTree(File file) {
         try {
             return new JsonBox(mapper.readTree(file));
         } catch (IOException e) {
@@ -32,11 +32,11 @@ public class JsonCodec {
         }
     }
 
-    public JsonBox valueToTree(Map<?, ?> map) {
+    JsonBox valueToTree(Map<?, ?> map) {
         return new JsonBox(mapper.valueToTree(map));
     }
 
-    public JsonBox polyReadTree(Object input) {
+    JsonBox polyReadTree(Object input) {
         if (input instanceof String) return readTree((String) input);
         if (input instanceof File) return readTree((File) input);
         if (input instanceof Map) return valueToTree((Map<?, ?>) input);
@@ -47,7 +47,7 @@ public class JsonCodec {
         );
     }
 
-    public Map<String, Object> polyReadMap(Object input) {
+    Map<String, Object> polyReadMap(Object input) {
         try {
             if (input instanceof String) return mapper.readValue((String) input, new TypeReference<>() {});
         } catch (IOException e) {
@@ -65,12 +65,12 @@ public class JsonCodec {
         throw new IllegalArgumentException(String.format("Cannot read map out of %s type", input.getClass()));
     }
 
-    public Map<String, Object> toMap(JsonBox box) {
+    Map<String, Object> toMap(JsonBox box) {
         if (!box.isObject()) throw new IllegalArgumentException("Wrapped node is not an object");
         return mapper.convertValue(box.node, Map.class);
     }
 
-    public byte[] writeValueAsBytes(Object value) {
+    byte[] writeValueAsBytes(Object value) {
         try {
             return mapper.writeValueAsBytes(value);
         } catch (IOException e) {
@@ -78,41 +78,41 @@ public class JsonCodec {
         }
     }
 
-    public int sizeInBytes(Object value) {
+    int sizeInBytes(Object value) {
         return writeValueAsBytes(value).length;
     }
 
-    public static class JsonBox {
+    static class JsonBox {
         JsonNode node;
 
-        public JsonBox(JsonNode node) {
+        JsonBox(JsonNode node) {
             this.node = node;
         }
 
-        public boolean isObject() { return node.isObject(); }
-        public boolean isArray() { return node.isArray(); }
-        public boolean isNull() { return node.isNull(); }
-        public boolean isValueNode() { return node.isValueNode(); }
-        public boolean isBoolean() { return node.isBoolean(); }
-        public boolean asBoolean() { return node.asBoolean(); }
-        public boolean isLong() { return node.isLong(); }
-        public long asLong() { return node.asLong(); }
-        public boolean isInt() { return node.isInt(); }
-        public int asInt() { return node.asInt(); }
-        public boolean isDouble() { return node.isDouble(); }
-        public double asDouble() { return node.asDouble(); }
-        public String asText() { return node.asText(); }
+        boolean isObject() { return node.isObject(); }
+        boolean isArray() { return node.isArray(); }
+        boolean isNull() { return node.isNull(); }
+        boolean isValueNode() { return node.isValueNode(); }
+        boolean isBoolean() { return node.isBoolean(); }
+        boolean asBoolean() { return node.asBoolean(); }
+        boolean isLong() { return node.isLong(); }
+        long asLong() { return node.asLong(); }
+        boolean isInt() { return node.isInt(); }
+        int asInt() { return node.asInt(); }
+        boolean isDouble() { return node.isDouble(); }
+        double asDouble() { return node.asDouble(); }
+        String asText() { return node.asText(); }
 
-        public JsonBox get(int index) {
+        JsonBox get(int index) {
             if (!isArray()) { throw new IllegalArgumentException("Wrapped node is not an array"); }
             return new JsonBox(node.get(index));
         }
 
-        public int size() {
+        int size() {
             return node.size();
         }
 
-        public Iterator<Map.Entry<String, JsonBox>> fields() {
+        Iterator<Map.Entry<String, JsonBox>> fields() {
             if (!isObject()) {
                 throw new IllegalStateException("Wrapped node is not an object");
             }
@@ -123,7 +123,7 @@ public class JsonCodec {
         private static class JsonNodeBoxIterator implements Iterator<Map.Entry<String, JsonBox>> {
             private final Iterator<Map.Entry<String, JsonNode>> it;
 
-            public JsonNodeBoxIterator(Iterator<Map.Entry<String, JsonNode>> it) {
+            JsonNodeBoxIterator(Iterator<Map.Entry<String, JsonNode>> it) {
                 this.it = it;
             }
 

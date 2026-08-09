@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import static io.github.zaragozamartin91.splitter.JsonSplitterStrategy.*;
 
+@PublicApi
 public class JsonSplitterConfig {
     private boolean flatten;
     private JsonSplitterStrategy strategy;

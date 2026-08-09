@@ -1,6 +1,6 @@
 package io.github.zaragozamartin91.splitter;
 
-public enum JsonSplitterStrategy {
+enum JsonSplitterStrategy {
     SPLIT_BY_CHUNK_SIZE,
 
     SPLIT_BY_ENTRY_COUNT,

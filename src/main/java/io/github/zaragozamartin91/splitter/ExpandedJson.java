@@ -1,9 +1,10 @@
-package io.github.zaragozamartin91.splitter.flat;
+package io.github.zaragozamartin91.splitter;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@PublicApi
 public class ExpandedJson {
     private final Map<String, Object> jsonMap;
     private final List<Object> jsonArray;

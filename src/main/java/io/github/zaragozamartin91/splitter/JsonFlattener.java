@@ -1,12 +1,11 @@
-package io.github.zaragozamartin91.splitter.flat;
+package io.github.zaragozamartin91.splitter;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import io.github.zaragozamartin91.splitter.JsonCodec;
-
+@PublicApi
 public class JsonFlattener {
     private final JsonCodec jsonCodec;
 
@@ -16,7 +15,7 @@ public class JsonFlattener {
         this(JsonCodec.instance());
     }
 
-    public JsonFlattener(JsonCodec jsonCodec) {
+    JsonFlattener(JsonCodec jsonCodec) {
         this.jsonCodec = jsonCodec;
     }
 

@@ -1,12 +1,12 @@
-package io.github.zaragozamartin91.splitter.split;
+package io.github.zaragozamartin91.splitter;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public enum SplitByEntryCount {
+enum SplitByEntryCount {
     INSTANCE;
 
-    public List<Map<String, Object>> splitByEntryCount(Map<String, Object> input, int entryCount) {
+    List<Map<String, Object>> splitByEntryCount(Map<String, Object> input, int entryCount) {
         if (entryCount <= 0) throw new IllegalArgumentException("entryCount must be higher than 0");
 
         if (Objects.isNull(input) || input.isEmpty()) return List.of();

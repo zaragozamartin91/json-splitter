@@ -3,6 +3,7 @@ package io.github.zaragozamartin91.splitter;
 import java.util.List;
 import java.util.Map;
 
+@PublicApi
 public class JsonPart {
     private final Map<String, Object> jsonMap;
     private final List<Object> jsonArray;

@@ -1,10 +1,5 @@
-package io.github.zaragozamartin91.splitter.split;
+package io.github.zaragozamartin91.splitter;
 
-import io.github.zaragozamartin91.splitter.JsonCodec;
-import io.github.zaragozamartin91.splitter.TestUtil;
-import io.github.zaragozamartin91.splitter.flat.JsonFlattener;
-import io.github.zaragozamartin91.splitter.flat.JsonExpander;
-import io.github.zaragozamartin91.splitter.flat.ExpandedJson;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;

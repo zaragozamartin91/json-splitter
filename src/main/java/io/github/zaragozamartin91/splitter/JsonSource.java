@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
+@PublicApi
 public class JsonSource {
     /* Only one of these can be nonNull at a time */
     private String textJson;

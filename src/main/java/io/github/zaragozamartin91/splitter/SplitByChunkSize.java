@@ -1,15 +1,14 @@
-package io.github.zaragozamartin91.splitter.split;
+package io.github.zaragozamartin91.splitter;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.github.zaragozamartin91.splitter.split.Operation.*;
+import static io.github.zaragozamartin91.splitter.Operation.*;
 import static java.math.RoundingMode.HALF_UP;
 
-public enum SplitByChunkSize {
+enum SplitByChunkSize {
     INSTANCE;
 
     /**
@@ -20,7 +19,7 @@ public enum SplitByChunkSize {
      * @param sizeFunction Function to calculate the size of the map in bytes
      * @return List of separated maps
      */
-    public List<Map<String, Object>> splitByChunkSize(
+    List<Map<String, Object>> splitByChunkSize(
             Map<String, Object> input,
             long minSizeBytes,
             long maxSizeBytes,
@@ -141,12 +140,12 @@ public enum SplitByChunkSize {
         }
     }
 
-    public static long mapSizeAsBytes(Object obj, Function<Object, Integer> sizeInBytes) {
+    static long mapSizeAsBytes(Object obj, Function<Object, Integer> sizeInBytes) {
         return JsonSize.mapSizeAsBytes(obj, sizeInBytes);
     }
 
 
-    public static long flatMapSizeAsBytes(Object obj,
+    static long flatMapSizeAsBytes(Object obj,
                                    Function<Object, Integer> sizeInBytes,
                                    Function<Collection<Map.Entry<String, Object>>, Map<String, Object>> unflatten) {
         return JsonSize.flatMapSizeAsBytes(obj, sizeInBytes, unflatten);
@@ -158,12 +157,12 @@ final class Window {
     final int left;
     final int right;
 
-    public Window(int left, int right) {
+    Window(int left, int right) {
         this.left = left;
         this.right = right;
     }
 
-    public int len() {
+    int len() {
         return Math.max(0, right - left);
     }
 
@@ -235,7 +234,7 @@ final class SizeInterval {
     long minSize;
     long maxSize;
 
-    public SizeInterval(long minSize, long maxSize) {
+    SizeInterval(long minSize, long maxSize) {
         if (minSize <= 0) throw new IllegalArgumentException("minSize must be higher than 0");
         if (maxSize <= 0) throw new IllegalArgumentException("maxSize must be higher than 0");
         if (maxSize < minSize) throw new IllegalArgumentException("minSize must be smaller than maxSize");
@@ -290,7 +289,7 @@ final class HeftyMap {
     List<Map.Entry<String, Object>> entries;
     long sizeBytes;
 
-    public HeftyMap(List<Map.Entry<String, Object>> entries, long sizeBytes) {
+    HeftyMap(List<Map.Entry<String, Object>> entries, long sizeBytes) {
         this.entries = entries;
         this.sizeBytes = sizeBytes;
     }

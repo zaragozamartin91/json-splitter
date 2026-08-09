@@ -1,13 +1,5 @@
 package io.github.zaragozamartin91.splitter;
 
-import io.github.zaragozamartin91.splitter.flat.ExpandedJson;
-import io.github.zaragozamartin91.splitter.flat.FlatJson;
-import io.github.zaragozamartin91.splitter.flat.JsonFlattener;
-import io.github.zaragozamartin91.splitter.flat.JsonExpander;
-import io.github.zaragozamartin91.splitter.split.SplitByChunkSize;
-import io.github.zaragozamartin91.splitter.split.SplitByEntryCount;
-import io.github.zaragozamartin91.splitter.split.SplitByNumberOfParts;
-
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@PublicApi
 public class JsonSplitter implements Function<JsonSource, SplitJson> {
     private final JsonSplitterConfig config;
     private final JsonCodec jsonCodec;
