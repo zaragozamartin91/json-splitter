@@ -1,0 +1,99 @@
+package io.github.zaragozamartin91.splitter;
+import org.junit.jupiter.api.Test;
+import java.util.*;
+import java.util.stream.Collectors;
+import static org.junit.jupiter.api.Assertions.*;
+
+class JsonSplitterNeoTest {
+
+    private final JsonCodec jsonCodec = JsonCodec.instance();
+
+    @Test
+    void testSplitByChunkSize() throws Exception {
+        // GIVEN
+        String json = TestUtil.utf8FileText("/sample-data.json");
+        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByChunkSize(112, 144);
+        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+
+        long originalSize = jsonCodec.sizeInBytes(json);
+
+        // WHEN
+        SplitJsonNeo result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertNotNull(parts);
+        assertFalse(parts.isEmpty());
+
+        long totalPartsSize = parts.stream()
+                .mapToLong(p -> p.jsonMap() != null ? jsonCodec.sizeInBytes(p.jsonMap()) : jsonCodec.sizeInBytes(p.jsonArray()))
+                .sum();
+
+        assertTrue(Math.abs(originalSize - totalPartsSize) < 1000,
+                "Total size should be roughly equal to original. Diff: " + Math.abs(originalSize - totalPartsSize));
+    }
+
+    @Test
+    void testFlattenAndSplitByChunkSize() throws Exception {
+        // GIVEN
+        String json = TestUtil.utf8FileText("/sample-data-big.json");
+        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByChunkSize(224, 288).withFlatten(true);
+        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+
+        long originalSize = jsonCodec.sizeInBytes(json);
+
+        // WHEN
+        SplitJsonNeo result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertNotNull(parts);
+        assertFalse(parts.isEmpty());
+
+        long totalPartsSize = parts.stream()
+                .mapToLong(p -> p.jsonMap() != null ? jsonCodec.sizeInBytes(p.jsonMap()) : jsonCodec.sizeInBytes(p.jsonArray()))
+                .sum();
+
+        assertTrue(Math.abs(originalSize - totalPartsSize) < 2000,
+                "Total size should be roughly equal to original. Diff: " + Math.abs(originalSize - totalPartsSize));
+    }
+
+    @Test
+    void testSplitByEntryCount_validWithRemainder() {
+        // GIVEN
+        String json = "{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\"}";
+        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(2);
+        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+
+        // WHEN
+        SplitJsonNeo result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(2, parts.size());
+        assertEquals(2, parts.get(0).jsonMap().size());
+        assertEquals(1, parts.get(1).jsonMap().size());
+        assertTrue(parts.get(1).jsonMap().containsKey("k3"));
+    }
+
+    @Test
+    void testSplitByNumberOfParts_valid() {
+        // GIVEN
+        String json = "{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\", \"k4\":\"v4\"}";
+        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByNumberOfParts(2);
+        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+
+        // WHEN
+        SplitJsonNeo result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(2, parts.size());
+        assertEquals(2, parts.get(0).jsonMap().size());
+        assertEquals(2, parts.get(1).jsonMap().size());
+    }
+}

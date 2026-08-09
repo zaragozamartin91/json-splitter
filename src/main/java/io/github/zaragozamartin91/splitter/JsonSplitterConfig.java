@@ -26,6 +26,10 @@ public class JsonSplitterConfig {
     public JsonSplitterConfig(JsonSplitterConfig other) {
         this.flatten = other.flatten;
         this.strategy = other.strategy;
+        this.entryCount = other.entryCount;
+        this.numberOfParts = other.numberOfParts;
+        this.minSizeBytes = other.minSizeBytes;
+        this.maxSizeBytes = other.maxSizeBytes;
     }
 
     public JsonSplitterConfig withFlatten(boolean flatten) {
@@ -36,7 +40,7 @@ public class JsonSplitterConfig {
 
     JsonSplitterConfig withStrategy(JsonSplitterStrategy strategy) {
         JsonSplitterConfig other = new JsonSplitterConfig(this);
-        other.strategy = this.strategy;
+        other.strategy = strategy;
         return other;
     }
 
@@ -90,16 +94,17 @@ public class JsonSplitterConfig {
         switch (strategy()) {
             case SPLIT_BY_CHUNK_SIZE:
                 validateState(minSizeBytes, Objects::nonNull, "Missing minSizeBytes");
-                validateState(minSizeBytes, v -> ((Integer)v) > 0, "minSizeBytes must be bigger than 0");
+                validateState(minSizeBytes, v -> ((Long)v) > 0, "minSizeBytes must be bigger than 0");
                 validateState(maxSizeBytes, Objects::nonNull, "Missing maxSizeBytes");
-                validateState(maxSizeBytes, v -> ((Integer)v) > 0, "maxSizeBytes must be bigger than 0");
+                validateState(maxSizeBytes, v -> ((Long)v) > 0, "maxSizeBytes must be bigger than 0");
+                break;
             case SPLIT_BY_ENTRY_COUNT:
                 validateState(entryCount, Objects::nonNull, "Missing entryCount");
                 validateState(entryCount, v -> ((Integer)v) > 0, "entryCount must be bigger than 0");
                 break;
             case SPLIT_BY_NUMBER_OF_PARTS:
                 validateState(numberOfParts, Objects::nonNull, "Missing numberOfParts");
-                validateState(numberOfParts, v -> ((Integer)v) > 0, "entryCount must be bigger than 0");
+                validateState(numberOfParts, v -> ((Integer)v) > 0, "numberOfParts must be bigger than 0");
                 break;
         }
         return this;

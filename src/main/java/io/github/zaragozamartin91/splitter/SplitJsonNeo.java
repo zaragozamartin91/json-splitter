@@ -1,9 +1,6 @@
 package io.github.zaragozamartin91.splitter;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class SplitJsonNeo {
     private final List<JsonPart> jsonParts;
@@ -12,5 +9,7 @@ public class SplitJsonNeo {
         this.jsonParts = jsonParts;
     }
 
-
+    public List<JsonPart> getParts() {
+        return jsonParts;
+    }
 }
