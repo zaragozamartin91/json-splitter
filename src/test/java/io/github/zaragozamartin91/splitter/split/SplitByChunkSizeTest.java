@@ -3,7 +3,7 @@ package io.github.zaragozamartin91.splitter.split;
 import io.github.zaragozamartin91.splitter.JsonCodec;
 import io.github.zaragozamartin91.splitter.TestUtil;
 import io.github.zaragozamartin91.splitter.flat.JsonFlattener;
-import io.github.zaragozamartin91.splitter.flat.JsonUnflattener;
+import io.github.zaragozamartin91.splitter.flat.JsonExpander;
 import io.github.zaragozamartin91.splitter.flat.ExpandedJson;
 import org.junit.jupiter.api.Test;
 
@@ -126,8 +126,8 @@ class SplitByChunkSizeTest {
 
     private static Map<String, Object> unflattenAndMap(Collection<Map.Entry<String, Object>> entries) {
         LinkedHashMap<String, Object> flatMap = newLinkedHashMap(entries);
-        JsonUnflattener jsonUnflattener = new JsonUnflattener();
-        ExpandedJson unflatten = jsonUnflattener.unflatten(flatMap);
+        JsonExpander jsonExpander = new JsonExpander();
+        ExpandedJson unflatten = jsonExpander.unflatten(flatMap);
         return unflatten.jsonMap();
     }
 

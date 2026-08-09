@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JsonUnflattenerTest {
+public class JsonExpanderTest {
 
     @Test
     public void testSimpleUnflatten() {
@@ -12,7 +12,7 @@ public class JsonUnflattenerTest {
         flatMap.put("name", "John");
         flatMap.put("age", 30);
 
-        JsonUnflattener unflattener = new JsonUnflattener();
+        JsonExpander unflattener = new JsonExpander();
         Map<String, Object> result = unflattener.unflatten(flatMap).jsonMap();
 
         assertEquals("John", result.get("name"));
@@ -26,7 +26,7 @@ public class JsonUnflattenerTest {
         flatMap.put("user.address.city", "New York");
         flatMap.put("user.address.zip", "10001");
 
-        JsonUnflattener unflattener = new JsonUnflattener();
+        JsonExpander unflattener = new JsonExpander();
         Map<String, Object> result = unflattener.unflatten(flatMap).jsonMap();
 
         assertTrue(result.get("user") instanceof Map);
@@ -44,7 +44,7 @@ public class JsonUnflattenerTest {
         flatMap.put("tags[0]", "java");
         flatMap.put("tags[1]", "json");
 
-        JsonUnflattener unflattener = new JsonUnflattener();
+        JsonExpander unflattener = new JsonExpander();
         Map<String, Object> result = unflattener.unflatten(flatMap).jsonMap();
 
         assertTrue(result.get("tags") instanceof List);
@@ -64,7 +64,7 @@ public class JsonUnflattenerTest {
         flatMap.put("user.phones[1].type", "work");
         flatMap.put("user.address.city", "New York");
 
-        JsonUnflattener unflattener = new JsonUnflattener();
+        JsonExpander unflattener = new JsonExpander();
         Map<String, Object> result = unflattener.unflatten(flatMap).jsonMap();
 
         Map<String, Object> user = (Map<String, Object>) result.get("user");
@@ -87,7 +87,7 @@ public class JsonUnflattenerTest {
         JsonFlattener flattener = new JsonFlattener();
         Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
-        JsonUnflattener unflattener = new JsonUnflattener();
+        JsonExpander unflattener = new JsonExpander();
         ExpandedJson result = unflattener.unflatten(flat);
 
         // Root is always Map per signature. Root will have keys "[0]" and "[1]".
@@ -107,7 +107,7 @@ public class JsonUnflattenerTest {
         JsonFlattener flattener = new JsonFlattener();
         Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
-        JsonUnflattener unflattener = new JsonUnflattener();
+        JsonExpander unflattener = new JsonExpander();
         ExpandedJson result = unflattener.unflatten(flat);
 
         assertEquals(ExpandedJson.ResultType.JSON_ARRAY, result.resultType());
@@ -124,7 +124,7 @@ public class JsonUnflattenerTest {
         JsonFlattener flattener = new JsonFlattener();
         Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
-        JsonUnflattener unflattener = new JsonUnflattener();
+        JsonExpander unflattener = new JsonExpander();
         ExpandedJson unflatten = unflattener.unflatten(flat);
         Map<String, Object> result = unflatten.jsonMap();
 

@@ -3,7 +3,7 @@ package io.github.zaragozamartin91.splitter;
 import io.github.zaragozamartin91.splitter.flat.ExpandedJson;
 import io.github.zaragozamartin91.splitter.flat.FlatJson;
 import io.github.zaragozamartin91.splitter.flat.JsonFlattener;
-import io.github.zaragozamartin91.splitter.flat.JsonUnflattener;
+import io.github.zaragozamartin91.splitter.flat.JsonExpander;
 import io.github.zaragozamartin91.splitter.split.SplitByChunkSize;
 import io.github.zaragozamartin91.splitter.split.SplitByEntryCount;
 import io.github.zaragozamartin91.splitter.split.SplitByNumberOfParts;
@@ -19,13 +19,13 @@ public class JsonSplitter implements Function<JsonSource, SplitJson> {
     private final JsonSplitterConfig config;
     private final JsonCodec jsonCodec;
     private final JsonFlattener jsonFlattener;
-    private final JsonUnflattener jsonUnflattener;
+    private final JsonExpander jsonExpander;
 
     public JsonSplitter(final JsonSplitterConfig config) {
         this.config = config.valid();
         jsonCodec = JsonCodec.instance();
         jsonFlattener = new JsonFlattener(jsonCodec);
-        jsonUnflattener = new JsonUnflattener();
+        jsonExpander = new JsonExpander();
     }
 
     @Override
@@ -80,7 +80,7 @@ public class JsonSplitter implements Function<JsonSource, SplitJson> {
     }
 
     private List<JsonPart> expandedJsonParts(List<Map<String, Object>> result, boolean pureArrayContainer) {
-        return result.stream().map(jsonUnflattener::unflatten)
+        return result.stream().map(jsonExpander::unflatten)
                 .map(expandedJson -> pureArrayContainer
                         ? JsonPart.array(expandedJson.jsonArray())
                         : JsonPart.map(expandedJson.jsonMap()))
@@ -103,8 +103,8 @@ public class JsonSplitter implements Function<JsonSource, SplitJson> {
 
     private Map<String, Object> unflattenAndMap(Collection<Map.Entry<String, Object>> entries) {
         LinkedHashMap<String, Object> flatMap = newLinkedHashMap(entries);
-        JsonUnflattener jsonUnflattener = new JsonUnflattener();
-        ExpandedJson unflatten = jsonUnflattener.unflatten(flatMap);
+        JsonExpander jsonExpander = new JsonExpander();
+        ExpandedJson unflatten = jsonExpander.unflatten(flatMap);
         return unflatten.jsonMap();
     }
 }

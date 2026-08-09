@@ -7,9 +7,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JsonUnflattener {
+public class JsonExpander {
 
-    /* Todo : unflatten may return a list | array instead of a map */
     public ExpandedJson unflatten(Map<String, Object> theFlatMap) {
         if (theFlatMap == null || theFlatMap.isEmpty()) return new ExpandedJson(theFlatMap);
 
