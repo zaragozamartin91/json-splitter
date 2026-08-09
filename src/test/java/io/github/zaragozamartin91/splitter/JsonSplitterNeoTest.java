@@ -96,4 +96,68 @@ class JsonSplitterNeoTest {
         assertEquals(2, parts.get(0).jsonMap().size());
         assertEquals(2, parts.get(1).jsonMap().size());
     }
+
+    @Test
+    void testSplitByEntryCount_withSampleData() throws Exception {
+        // GIVEN
+        String json = TestUtil.utf8FileText("/sample-data.json");
+        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(6);
+        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        int originalEntryCount = jsonCodec.readTree(json).size();
+
+        // WHEN
+        SplitJsonNeo result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(4, parts.size());
+        assertEquals(6, parts.get(0).jsonMap().size());
+        assertEquals(6, parts.get(1).jsonMap().size());
+        assertEquals(6, parts.get(2).jsonMap().size());
+        assertEquals(4, parts.get(3).jsonMap().size());
+
+        int totalEntries = parts.stream()
+                .mapToInt(p -> p.jsonMap().size())
+                .sum();
+        assertEquals(originalEntryCount, totalEntries);
+
+        Set<String> originalKeys = jsonCodec.polyReadMap(json).keySet();
+        Set<String> resultKeys = parts.stream()
+                .flatMap(p -> p.jsonMap().keySet().stream())
+                .collect(Collectors.toSet());
+        assertEquals(originalKeys, resultKeys);
+    }
+
+    @Test
+    void testSplitByNumberOfParts_withSampleData() throws Exception {
+        // GIVEN
+        String json = TestUtil.utf8FileText("/sample-data.json");
+        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByNumberOfParts(4);
+        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        int originalEntryCount = jsonCodec.readTree(json).size();
+
+        // WHEN
+        SplitJsonNeo result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(4, parts.size());
+        assertEquals(6, parts.get(0).jsonMap().size());
+        assertEquals(6, parts.get(1).jsonMap().size());
+        assertEquals(6, parts.get(2).jsonMap().size());
+        assertEquals(4, parts.get(3).jsonMap().size());
+
+        int totalEntries = parts.stream()
+                .mapToInt(p -> p.jsonMap().size())
+                .sum();
+        assertEquals(originalEntryCount, totalEntries);
+
+        Set<String> originalKeys = jsonCodec.polyReadMap(json).keySet();
+        Set<String> resultKeys = parts.stream()
+                .flatMap(p -> p.jsonMap().keySet().stream())
+                .collect(Collectors.toSet());
+        assertEquals(originalKeys, resultKeys);
+    }
 }
