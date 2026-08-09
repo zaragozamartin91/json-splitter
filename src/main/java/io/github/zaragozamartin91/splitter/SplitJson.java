@@ -2,10 +2,10 @@ package io.github.zaragozamartin91.splitter;
 
 import java.util.List;
 
-public class SplitJsonNeo {
+public class SplitJson {
     private final List<JsonPart> jsonParts;
 
-    public SplitJsonNeo(List<JsonPart> jsonParts) {
+    public SplitJson(List<JsonPart> jsonParts) {
         this.jsonParts = jsonParts;
     }
 

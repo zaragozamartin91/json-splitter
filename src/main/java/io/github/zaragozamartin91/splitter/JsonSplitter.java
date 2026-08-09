@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class JsonSplitterNeo implements Function<JsonSourceNeo, SplitJsonNeo> {
+public class JsonSplitter implements Function<JsonSource, SplitJson> {
     private final JsonSplitterConfig config;
     private final JsonCodec jsonCodec;
     private final JsonFlattener jsonFlattener;
     private final JsonUnflattener jsonUnflattener;
 
-    public JsonSplitterNeo(final JsonSplitterConfig config) {
+    public JsonSplitter(final JsonSplitterConfig config) {
         this.config = config.valid();
         jsonCodec = JsonCodec.instance();
         jsonFlattener = new JsonFlattener(jsonCodec);
@@ -29,7 +29,7 @@ public class JsonSplitterNeo implements Function<JsonSourceNeo, SplitJsonNeo> {
     }
 
     @Override
-    public SplitJsonNeo apply(JsonSourceNeo jsonSource) {
+    public SplitJson apply(JsonSource jsonSource) {
         JsonCodec.JsonBox jsonBox = jsonCodec.polyReadTree(jsonSource.getContent());
         Map<String, Object> normalInput;
         /* If the input is a pure array then flattening is mandatory */
@@ -76,7 +76,7 @@ public class JsonSplitterNeo implements Function<JsonSourceNeo, SplitJsonNeo> {
             jsonParts = result.stream().map(JsonPart::map).collect(Collectors.toList());
         }
 
-        return new SplitJsonNeo(jsonParts);
+        return new SplitJson(jsonParts);
     }
 
     private List<JsonPart> expandedJsonParts(List<Map<String, Object>> result, boolean pureArrayContainer) {

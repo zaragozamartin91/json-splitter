@@ -7,26 +7,26 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
-public class JsonSourceNeo {
+public class JsonSource {
     /* Only one of these can be nonNull at a time */
     private String textJson;
     private Map<String, Object> dictionaryJson;
 
-    public static JsonSourceNeo fromString(String jsonData) {
-        return new JsonSourceNeo(Objects.requireNonNull(jsonData, "jsonData must not be null"));
+    public static JsonSource fromString(String jsonData) {
+        return new JsonSource(Objects.requireNonNull(jsonData, "jsonData must not be null"));
     }
 
-    public static JsonSourceNeo fromBytes(byte[] jsonData, Charset charset) {
-        return new JsonSourceNeo(new String(
+    public static JsonSource fromBytes(byte[] jsonData, Charset charset) {
+        return new JsonSource(new String(
                 Objects.requireNonNull(jsonData, "jsonData must not be null"),
                 Objects.requireNonNull(charset, "charset must not be null")));
     }
 
-    public static JsonSourceNeo fromMap(Map<String, Object> mapJson) {
-        return new JsonSourceNeo(Objects.requireNonNull(mapJson, "mapJson must not be null"));
+    public static JsonSource fromMap(Map<String, Object> mapJson) {
+        return new JsonSource(Objects.requireNonNull(mapJson, "mapJson must not be null"));
     }
 
-    public static JsonSourceNeo fromPath(Path path, Charset charset) {
+    public static JsonSource fromPath(Path path, Charset charset) {
         try {
             byte[] fileBytes = Files.readAllBytes(path);
             return fromBytes(fileBytes, charset);
@@ -35,11 +35,11 @@ public class JsonSourceNeo {
         }
     }
 
-    JsonSourceNeo(String jsonData) {
+    JsonSource(String jsonData) {
         this.textJson = jsonData;
     }
 
-    JsonSourceNeo(Map<String, Object> mapJson) {
+    JsonSource(Map<String, Object> mapJson) {
         this.dictionaryJson = mapJson;
     }
 

@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
-class JsonSplitterNeoTest {
+class JsonSplitterTest {
 
     private final JsonCodec jsonCodec = JsonCodec.instance();
 
@@ -12,14 +12,14 @@ class JsonSplitterNeoTest {
     void testSplitByChunkSize() throws Exception {
         // GIVEN
         String json = TestUtil.utf8FileText("/sample-data.json");
-        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSource source = new JsonSource(json);
         JsonSplitterConfig config = JsonSplitterConfig.splitByChunkSize(112, 144);
-        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        JsonSplitter splitter = new JsonSplitter(config);
 
         long originalSize = jsonCodec.sizeInBytes(json);
 
         // WHEN
-        SplitJsonNeo result = splitter.apply(source);
+        SplitJson result = splitter.apply(source);
         List<JsonPart> parts = result.getParts();
 
         // THEN
@@ -38,14 +38,14 @@ class JsonSplitterNeoTest {
     void testFlattenAndSplitByChunkSize() throws Exception {
         // GIVEN
         String json = TestUtil.utf8FileText("/sample-data-big.json");
-        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSource source = new JsonSource(json);
         JsonSplitterConfig config = JsonSplitterConfig.splitByChunkSize(224, 288).withFlatten(true);
-        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        JsonSplitter splitter = new JsonSplitter(config);
 
         long originalSize = jsonCodec.sizeInBytes(json);
 
         // WHEN
-        SplitJsonNeo result = splitter.apply(source);
+        SplitJson result = splitter.apply(source);
         List<JsonPart> parts = result.getParts();
 
         // THEN
@@ -64,12 +64,12 @@ class JsonSplitterNeoTest {
     void testSplitByEntryCount_validWithRemainder() {
         // GIVEN
         String json = "{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\"}";
-        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSource source = new JsonSource(json);
         JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(2);
-        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        JsonSplitter splitter = new JsonSplitter(config);
 
         // WHEN
-        SplitJsonNeo result = splitter.apply(source);
+        SplitJson result = splitter.apply(source);
         List<JsonPart> parts = result.getParts();
 
         // THEN
@@ -83,12 +83,12 @@ class JsonSplitterNeoTest {
     void testSplitByNumberOfParts_valid() {
         // GIVEN
         String json = "{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\", \"k4\":\"v4\"}";
-        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSource source = new JsonSource(json);
         JsonSplitterConfig config = JsonSplitterConfig.splitByNumberOfParts(2);
-        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        JsonSplitter splitter = new JsonSplitter(config);
 
         // WHEN
-        SplitJsonNeo result = splitter.apply(source);
+        SplitJson result = splitter.apply(source);
         List<JsonPart> parts = result.getParts();
 
         // THEN
@@ -101,13 +101,13 @@ class JsonSplitterNeoTest {
     void testSplitByEntryCount_withSampleData() throws Exception {
         // GIVEN
         String json = TestUtil.utf8FileText("/sample-data.json");
-        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSource source = new JsonSource(json);
         JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(6);
-        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        JsonSplitter splitter = new JsonSplitter(config);
         int originalEntryCount = jsonCodec.readTree(json).size();
 
         // WHEN
-        SplitJsonNeo result = splitter.apply(source);
+        SplitJson result = splitter.apply(source);
         List<JsonPart> parts = result.getParts();
 
         // THEN
@@ -133,13 +133,13 @@ class JsonSplitterNeoTest {
     void testSplitByNumberOfParts_withSampleData() throws Exception {
         // GIVEN
         String json = TestUtil.utf8FileText("/sample-data.json");
-        JsonSourceNeo source = new JsonSourceNeo(json);
+        JsonSource source = new JsonSource(json);
         JsonSplitterConfig config = JsonSplitterConfig.splitByNumberOfParts(4);
-        JsonSplitterNeo splitter = new JsonSplitterNeo(config);
+        JsonSplitter splitter = new JsonSplitter(config);
         int originalEntryCount = jsonCodec.readTree(json).size();
 
         // WHEN
-        SplitJsonNeo result = splitter.apply(source);
+        SplitJson result = splitter.apply(source);
         List<JsonPart> parts = result.getParts();
 
         // THEN
