@@ -1,6 +1,7 @@
 package io.github.zaragozamartin91.splitter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -39,6 +40,7 @@ public class JsonCodec {
         if (input instanceof String) return readTree((String) input);
         if (input instanceof File) return readTree((File) input);
         if (input instanceof Map) return valueToTree((Map<?, ?>) input);
+        if (input instanceof JsonBox) return (JsonBox) input;
 
         throw new IllegalArgumentException(
             "Unsupported input type: " + (input == null ? "null" : input.getClass().getName())
@@ -46,12 +48,25 @@ public class JsonCodec {
     }
 
     public Map<String, Object> polyReadMap(Object input) {
-        JsonBox box = polyReadTree(input);
-        if (!box.isObject()) throw new IllegalArgumentException("Wrapped node is not an object");
-        return toMap(box);
+        try {
+            if (input instanceof String) return mapper.readValue((String) input, new TypeReference<>() {});
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Cannot read map out of %s", input),e);
+        }
+        try {
+            if (input instanceof File) return mapper.readValue((File) input, new TypeReference<>() {});
+        } catch (IOException e) {
+            File theFile = (File) input;
+            throw new IllegalArgumentException(String.format("Cannot read map out of %s", theFile.getAbsolutePath()), e);
+        }
+        if (input instanceof Map) return (Map<String, Object>) input;
+        if (input instanceof JsonBox) return toMap((JsonBox) input);
+
+        throw new IllegalArgumentException(String.format("Cannot read map out of %s type", input.getClass()));
     }
 
     public Map<String, Object> toMap(JsonBox box) {
+        if (!box.isObject()) throw new IllegalArgumentException("Wrapped node is not an object");
         return mapper.convertValue(box.node, Map.class);
     }
 

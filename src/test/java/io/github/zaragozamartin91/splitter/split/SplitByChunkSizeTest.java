@@ -1,7 +1,5 @@
 package io.github.zaragozamartin91.splitter.split;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.zaragozamartin91.splitter.JsonCodec;
 import io.github.zaragozamartin91.splitter.TestUtil;
 import io.github.zaragozamartin91.splitter.flat.JsonFlattener;
@@ -17,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SplitByChunkSizeTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonCodec mapper = JsonCodec.instance();
 
     @Test
     void testSplitByChunkSize() throws Exception {
         // Load fixture
         String json = TestUtil.utf8FileText("/sample-data.json");
-        Map<String, Object> input = mapper.readValue(json, new TypeReference<>() {});
+        Map<String, Object> input = mapper.polyReadMap(json);
 
         // Size function: JSON byte length
         Function<Object, Long> sizeFunction = this::mapSizeAsBytes;
