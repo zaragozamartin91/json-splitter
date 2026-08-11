@@ -1,237 +1,163 @@
 package io.github.zaragozamartin91.splitter;
-
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.wnameless.json.flattener.JsonFlattener;
-
+import java.util.*;
+import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+class JsonSplitterTest {
 
-/* Using java 8 & junit 5 ==> unit tests must hold the 'test' prefix */
-public class JsonSplitterTest {
-    private static final ZeLogger log = ZeLogger.getLogger(JsonSplitterTest.class.getName());
-
-    ObjectMapper mapper = new ObjectMapper();
+    private final JsonCodec jsonCodec = JsonCodec.instance();
 
     @Test
-    public void testTestDataFileIsReadableFromResources() throws URISyntaxException, IOException {
-        String resourcePath = "/sample-data.json";
-        String string = TestUtil.utf8FileText(resourcePath);
-        assertNotNull(string);
-        assertFalse(string.isEmpty());
-    }
-
-    @Test
-    public void testSplitJsonEquallyPlusPreSortByEntryKey() throws URISyntaxException, IOException {
+    void testSplitByChunkSize() throws Exception {
         // GIVEN
-        String fileText = TestUtil.utf8FileText("/sample-data.json");
-        // read fileText as a Map using ObjectMapper
-        Map<String, Object> originalJsonMap = mapper.readValue(fileText, new TypeReference<Map<String, Object>>() {
-        });
+        String json = TestUtil.utf8FileText("/sample-data.json");
+        JsonSource source = new JsonSource(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByChunkSize(112, 144);
+        JsonSplitter splitter = new JsonSplitter(config);
 
-        Map<String, Object> flatten = JsonFlattener.flattenAsMap(fileText);
-        int flatKeyCount = flatten.keySet().size();
+        long originalSize = jsonCodec.sizeInBytes(json);
 
         // WHEN
-        JsonSource jsonSource = JsonSource.fromString(fileText);
-        JsonSplitter jsonSplitter = new JsonSplitter();
-        SplitStrategy strategy = DynamicSplitStrategy
-                .equally(2) // Split equally into 2 parts
-                .flatten() // flatten the nested keys and values
-                .preSortByKey(SortFunction.SortOrder.ASCENDING); // Pre-sort entries by key in ascending order
-        SplitJson splitJson = jsonSplitter.split(jsonSource, strategy);
+        SplitJson result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
 
         // THEN
-        FlatJson part0 = splitJson.getPart(0);
-        FlatJson part1 = splitJson.getPart(1);
-        Set<String> keySet0 = part0.getKeySet();
-        Set<String> keySet1 = part1.getKeySet();
-        int part0KeyCount = keySet0.size();
-        int part1KeyCount = keySet1.size();
-        assertTrue(part0KeyCount >= part1KeyCount);
-        assertEquals(flatKeyCount, part0KeyCount + part1KeyCount);
-
-        // assert that keySet0 contains none of the keys in keySet1 and vice versa
-        assertTrue(keySet0.stream().noneMatch(keySet1::contains));
-        assertTrue(keySet1.stream().noneMatch(keySet0::contains));
-
-        Map<String, Object> unflattenAsMap0 = part0.unflattenAsMap();
-        Map<String, Object> unflattenAsMap1 = part1.unflattenAsMap();
-        assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap0.keySet()));
-        assertTrue(originalJsonMap.keySet().containsAll(unflattenAsMap1.keySet()));
-    }
-
-    @Test
-    public void testSplitJsonByEntryCount() throws URISyntaxException, IOException {
-        // Create a JsonSource object from a JSON string
-        JsonSource source = JsonSource.fromString("{\"key1\": \"value1\", \"key2\": \"value2\", \"key3\": \"value3\"}");
-
-        // Create a DynamicSplitStrategy object to split the JSON data by entry count
-        DynamicSplitStrategy strategy = DynamicSplitStrategy.byEntryCount(2);
-
-        // Create a JsonSplitter object and split the JSON data
-        JsonSplitter splitter = new JsonSplitter();
-        SplitJson splitJson = splitter.split(source, strategy);
-
-        // Get the split JSON data
-        List<FlatJson> flatJsons = splitJson.getParts();
-
-        // Assert that the split JSON data has the expected number of parts
-        assertEquals(2, flatJsons.size());
-
-        // Assert that each part contains the expected number of entries
-        FlatJson part0 = flatJsons.get(0);
-        FlatJson part1 = flatJsons.get(1);
-        assertEquals(2, part0.getKeySet().size());
-        assertEquals(1, part1.getKeySet().size());
-
-        HashMap<String, Object> expectedMap0 = new HashMap<String, Object>() {
-            {
-                put("key1", "value1");
-                put("key2", "value2");
-            }
-        };
-
-        HashMap<String, Object> expectedMap1 = new HashMap<String, Object>() {
-            {
-                put("key3", "value3");
-            }
-        };
-
-        assertEquals(expectedMap0, part0.unflattenAsMap());
-        assertEquals(expectedMap1, part1.unflattenAsMap());
-    }
-
-    @Test
-    public void testSplitJsonWithNestedKeysAndFlatteningByEntryCount() throws URISyntaxException, IOException {
-        // Create a JsonSource object from a JSON string
-        JsonSource source = JsonSource.fromString(
-                "{\"key1\": \"value1\", \"key2\": \"value2\", \"parentKey\": {\"nestedKey0\" : \"nestedValue0\", \"nestedKey1\" : \"nestedValue1\" , \"nestedKey2\" : \"nestedValue2\"} }");
-
-        // Create a DynamicSplitStrategy object to split the JSON data by entry count
-        DynamicSplitStrategy strategy = DynamicSplitStrategy.byEntryCount(3).flatten();
-
-        // Create a JsonSplitter object and split the JSON data
-        JsonSplitter splitter = new JsonSplitter();
-        SplitJson splitJson = splitter.split(source, strategy);
-
-        // Get the split JSON data
-        List<FlatJson> flatJsons = splitJson.getParts();
-
-        // Assert that the split JSON data has the expected number of parts
-        assertEquals(2, flatJsons.size());
-
-        // Assert that each part contains the expected number of entries
-        FlatJson part0 = flatJsons.get(0);
-        FlatJson part1 = flatJsons.get(1);
-        assertEquals(3, part0.getKeySet().size());
-        assertEquals(2, part1.getKeySet().size());
-
-        HashMap<String, Object> expectedMap0 = new HashMap<String, Object>() {
-            {
-                put("key1", "value1");
-                put("key2", "value2");
-                put("parentKey", new HashMap<String, Object>() {
-                    {
-                        put("nestedKey0", "nestedValue0");
-                    }
-                });
-            }
-        };
-
-        HashMap<String, Object> expectedMap1 = new HashMap<String, Object>() {
-            {
-                put("parentKey", new HashMap<String, Object>() {
-                    {
-                        put("nestedKey1", "nestedValue1");
-                        put("nestedKey2", "nestedValue2");
-                    }
-                });
-            }
-        };
-
-        assertEquals(expectedMap0, part0.unflattenAsMap());
-        assertEquals(expectedMap1, part1.unflattenAsMap());
-    }
-
-    @Test
-    public void testSplitJsonWithNestedKeysAndNoFlatteningByEntryCount() throws URISyntaxException, IOException {
-        // Create a JsonSource object from a JSON string
-        JsonSource source = JsonSource.fromString(
-                "{\"key1\": \"value1\", \"key2\": \"value2\", \"parentKey\": {\"nestedKey0\" : \"nestedValue0\", \"nestedKey1\" : \"nestedValue1\"} }");
-
-        // Create a DynamicSplitStrategy object to split the JSON data by entry count
-        DynamicSplitStrategy strategy = DynamicSplitStrategy.byEntryCount(2);
-
-        // Create a JsonSplitter object and split the JSON data
-        JsonSplitter splitter = new JsonSplitter();
-        SplitJson splitJson = splitter.split(source, strategy);
-
-        // Get the split JSON data
-        List<FlatJson> flatJsons = splitJson.getParts();
-
-        // Assert that the split JSON data has the expected number of parts
-        assertEquals(2, flatJsons.size());
-
-        // Assert that each part contains the expected number of entries
-        FlatJson part0 = flatJsons.get(0);
-        FlatJson part1 = flatJsons.get(1);
-        assertEquals(2, part0.getKeySet().size());
-        assertEquals(1, part1.getKeySet().size());
-
-        HashMap<String, Object> expectedMap0 = new HashMap<String, Object>() {
-            {
-                put("key1", "value1");
-                put("key2", "value2");
-            }
-        };
-
-        HashMap<String, Object> expectedMap1 = new HashMap<String, Object>() {
-            {
-                put("parentKey", new HashMap<String, Object>() {
-                    {
-                        put("nestedKey0", "nestedValue0");
-                        put("nestedKey1", "nestedValue1");
-                    }
-                });
-            }
-        };
-
-        assertEquals(expectedMap0, part0.unflattenAsMap());
-        assertEquals(expectedMap1, part1.unflattenAsMap());
-    }
-
-    @Test
-    public void testSplitBySize() throws URISyntaxException, IOException {
-        // GIVEN
-        String fileText = TestUtil.utf8FileText("/sample-data.json");
-
-        // WHEN
-        JsonSource jsonSource = JsonSource.fromString(fileText);
-        JsonSplitter jsonSplitter = new JsonSplitter();
-        int sizeInBytes = 128;
-        GroupBySizeContext context = new GroupBySizeContext(sizeInBytes);
-        DynamicSplitStrategy strategy = DynamicSplitStrategy.bySize(context);
-        SplitJson splitJson = jsonSplitter.split(jsonSource, strategy);
-
-        // THEN
-        List<FlatJson> parts = splitJson.getParts();
         assertNotNull(parts);
         assertFalse(parts.isEmpty());
 
-        // Verify all parts are under the size limit
-        for (FlatJson part : parts) {
-            String json = part.unflattenAsString();
-            assertTrue(json.getBytes().length <= sizeInBytes, "Part size exceeds 128 bytes");
-            log.info("Part: " + part.unflattenAsMap());
-        }
+        long totalPartsSize = parts.stream()
+                .mapToLong(p -> p.jsonMap() != null ? jsonCodec.sizeInBytes(p.jsonMap()) : jsonCodec.sizeInBytes(p.jsonArray()))
+                .sum();
+
+        assertTrue(Math.abs(originalSize - totalPartsSize) < 1000,
+                "Total size should be roughly equal to original. Diff: " + Math.abs(originalSize - totalPartsSize));
+    }
+
+    @Test
+    void testFlattenAndSplitByChunkSize() throws Exception {
+        // GIVEN
+        String json = TestUtil.utf8FileText("/sample-data-big.json");
+        JsonSource source = new JsonSource(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByChunkSize(224, 288).withFlatten(true);
+        JsonSplitter splitter = new JsonSplitter(config);
+
+        long originalSize = jsonCodec.sizeInBytes(json);
+
+        // WHEN
+        SplitJson result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertNotNull(parts);
+        assertFalse(parts.isEmpty());
+
+        long totalPartsSize = parts.stream()
+                .mapToLong(p -> p.jsonMap() != null ? jsonCodec.sizeInBytes(p.jsonMap()) : jsonCodec.sizeInBytes(p.jsonArray()))
+                .sum();
+
+        assertTrue(Math.abs(originalSize - totalPartsSize) < 2000,
+                "Total size should be roughly equal to original. Diff: " + Math.abs(originalSize - totalPartsSize));
+    }
+
+    @Test
+    void testSplitByEntryCount_validWithRemainder() {
+        // GIVEN
+        String json = "{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\"}";
+        JsonSource source = new JsonSource(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(2);
+        JsonSplitter splitter = new JsonSplitter(config);
+
+        // WHEN
+        SplitJson result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(2, parts.size());
+        assertEquals(2, parts.get(0).jsonMap().size());
+        assertEquals(1, parts.get(1).jsonMap().size());
+        assertTrue(parts.get(1).jsonMap().containsKey("k3"));
+    }
+
+    @Test
+    void testSplitByNumberOfParts_valid() {
+        // GIVEN
+        String json = "{\"k1\":\"v1\", \"k2\":\"v2\", \"k3\":\"v3\", \"k4\":\"v4\"}";
+        JsonSource source = new JsonSource(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByNumberOfParts(2);
+        JsonSplitter splitter = new JsonSplitter(config);
+
+        // WHEN
+        SplitJson result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(2, parts.size());
+        assertEquals(2, parts.get(0).jsonMap().size());
+        assertEquals(2, parts.get(1).jsonMap().size());
+    }
+
+    @Test
+    void testSplitByEntryCount_withSampleData() throws Exception {
+        // GIVEN
+        String json = TestUtil.utf8FileText("/sample-data.json");
+        JsonSource source = new JsonSource(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByEntryCount(6);
+        JsonSplitter splitter = new JsonSplitter(config);
+        int originalEntryCount = jsonCodec.readTree(json).size();
+
+        // WHEN
+        SplitJson result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(4, parts.size());
+        assertEquals(6, parts.get(0).jsonMap().size());
+        assertEquals(6, parts.get(1).jsonMap().size());
+        assertEquals(6, parts.get(2).jsonMap().size());
+        assertEquals(4, parts.get(3).jsonMap().size());
+
+        int totalEntries = parts.stream()
+                .mapToInt(p -> p.jsonMap().size())
+                .sum();
+        assertEquals(originalEntryCount, totalEntries);
+
+        Set<String> originalKeys = jsonCodec.polyReadMap(json).keySet();
+        Set<String> resultKeys = parts.stream()
+                .flatMap(p -> p.jsonMap().keySet().stream())
+                .collect(Collectors.toSet());
+        assertEquals(originalKeys, resultKeys);
+    }
+
+    @Test
+    void testSplitByNumberOfParts_withSampleData() throws Exception {
+        // GIVEN
+        String json = TestUtil.utf8FileText("/sample-data.json");
+        JsonSource source = new JsonSource(json);
+        JsonSplitterConfig config = JsonSplitterConfig.splitByNumberOfParts(4);
+        JsonSplitter splitter = new JsonSplitter(config);
+        int originalEntryCount = jsonCodec.readTree(json).size();
+
+        // WHEN
+        SplitJson result = splitter.apply(source);
+        List<JsonPart> parts = result.getParts();
+
+        // THEN
+        assertEquals(4, parts.size());
+        assertEquals(6, parts.get(0).jsonMap().size());
+        assertEquals(6, parts.get(1).jsonMap().size());
+        assertEquals(6, parts.get(2).jsonMap().size());
+        assertEquals(4, parts.get(3).jsonMap().size());
+
+        int totalEntries = parts.stream()
+                .mapToInt(p -> p.jsonMap().size())
+                .sum();
+        assertEquals(originalEntryCount, totalEntries);
+
+        Set<String> originalKeys = jsonCodec.polyReadMap(json).keySet();
+        Set<String> resultKeys = parts.stream()
+                .flatMap(p -> p.jsonMap().keySet().stream())
+                .collect(Collectors.toSet());
+        assertEquals(originalKeys, resultKeys);
     }
 }

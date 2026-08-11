@@ -1,0 +1,87 @@
+  {
+    "_id": "68b6a6ab8ac05f848f1e506d",
+    "index": 0,
+    "guid": "22f1253e-1390-4fe6-903f-9d58330993cb",
+    "isActive": false,
+    "picture": "http://placehold.it/32x32",
+    "age": 27,
+    "eyeColor": "blue",
+    "name": "Randall Trujillo",
+    "gender": "male",
+    "finances":{
+      "balance": "$2,952.06",
+      "funding_sources": [
+        {
+          "Price": 112.47,
+          "Currency Code": "USD",
+          "Credit Card (fake)": "4046134663517899",
+          "Amount": 2513.14
+        },
+        {
+          "Price": 266.27,
+          "Currency Code": "EUR",
+          "Credit Card (fake)": "4487006171595194",
+          "Amount": 4822.05
+        },
+        {
+          "Price": 476,
+          "Currency Code": "CHF",
+          "Credit Card (fake)": "4436994438256165",
+          "Amount": 3815.07
+        },
+        {
+          "Price": 590.1,
+          "Currency Code": "GBP",
+          "Credit Card (fake)": "4035841892370956",
+          "Amount": 5825.53
+        },
+        {
+          "Price": 352.08,
+          "Currency Code": "EUR",
+          "Credit Card (fake)": "4329570479374213",
+          "Amount": 3240.84
+        }
+      ]
+    },
+    "addresses": [
+      {
+        "City": "Phoenix",
+        "Country": "Canada",
+        "Country Code": "AU",
+        "Zip Code": "31556",
+        "Street Address": "6284 Pine Ave",
+        "coordinates": {
+          "Latitude": -66.23321,
+          "Longitude": 157.412675
+        }
+      },
+      {
+        "City": "New York",
+        "Country": "Germany",
+        "Country Code": "AU",
+        "Zip Code": "50131",
+        "Street Address": "8229 Cedar St",
+        "coordinates": {
+          "Latitude": -24.291156,
+          "Longitude": 135.012992
+        }
+      }
+    ],
+    "company": "MEDICROIX",
+    "email": "randalltrujillo@medicroix.com",
+    "phone": "+1 (901) 478-2321",
+    "address": "182 Visitation Place, Stewart, Nevada, 2144",
+    "about": "Mollit sint commodo ad anim excepteur do anim.",
+    "registered": "2021-12-26T08:41:09 -01:00",
+    "tags": [
+      "cillum",
+      "incididunt",
+      "amet",
+      "non",
+      "labore",
+      "ea",
+      "nostrud"
+    ],
+    "greeting": "Hello, Randall Trujillo! You have 7 unread messages.",
+    "favoriteFruit": "strawberry"
+  }

@@ -8,13 +8,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class TestUtil {
+public class TestUtil {
 
     static URL resourceUrl(String resourcePath) {
         return TestUtil.class.getResource(resourcePath);
     }
 
-    static String utf8FileText(String resourcePath) throws URISyntaxException, IOException {
+    public static String utf8FileText(String resourcePath) throws URISyntaxException, IOException {
         URL url = resourceUrl(resourcePath);
         Path path = Paths.get(url.toURI());
         byte[] fileBytes = Files.readAllBytes(path);

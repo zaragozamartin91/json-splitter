@@ -7,10 +7,11 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
+@PublicApi
 public class JsonSource {
+    /* Only one of these can be nonNull at a time */
     private String textJson;
     private Map<String, Object> dictionaryJson;
-    private FlatJson flatJson;
 
     public static JsonSource fromString(String jsonData) {
         return new JsonSource(Objects.requireNonNull(jsonData, "jsonData must not be null"));
@@ -35,10 +36,6 @@ public class JsonSource {
         }
     }
 
-    public static JsonSource fromFlatJson(FlatJson flatJson) {
-        return new JsonSource(flatJson);
-    }
-
     JsonSource(String jsonData) {
         this.textJson = jsonData;
     }
@@ -47,36 +44,33 @@ public class JsonSource {
         this.dictionaryJson = mapJson;
     }
 
-    JsonSource(FlatJson flatJson) {
-        this.flatJson = flatJson;
-    }
 
-    public String getTextJson() {
+    String getTextJson() {
         return textJson;
     }
 
-    public Map<String, Object> getDictionaryJson() {
+    Map<String, Object> getDictionaryJson() {
         return dictionaryJson;
     }
 
-    public FlatJson getFlatJson() {
-        return flatJson;
-    }
-
-    static enum ContentType {
+    enum ContentType {
         TEXT, DICTIONARY, FLAT_JSON, NONE
     }
 
-    public ContentType getContentType() {
-        if (Objects.nonNull(textJson)) {
-            return ContentType.TEXT;
-        } else if (Objects.nonNull(dictionaryJson)) {
-            return ContentType.DICTIONARY;
-        } else if (Objects.nonNull(flatJson)) {
-            return ContentType.FLAT_JSON;
-        } else {
-            return ContentType.NONE;
+    ContentType getContentType() {
+        if (Objects.nonNull(textJson)) return ContentType.TEXT;
+        if (Objects.nonNull(dictionaryJson)) return ContentType.DICTIONARY;
+        return ContentType.NONE;
+    }
+
+    Object getContent() {
+        Object content = null;
+        switch (getContentType()) {
+            case TEXT: content=getTextJson(); break;
+            case DICTIONARY: content=getDictionaryJson(); break;
+            case NONE: break;
         }
+        return content;
     }
 
     @Override

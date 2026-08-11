@@ -1,21 +1,16 @@
 package io.github.zaragozamartin91.splitter;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+@PublicApi
 public class SplitJson {
-    private final List<FlatJson> parts;
+    private final List<JsonPart> jsonParts;
 
-    public SplitJson(Collection<FlatJson> parts) {
-        this.parts = new ArrayList<>(parts);
+    public SplitJson(List<JsonPart> jsonParts) {
+        this.jsonParts = jsonParts;
     }
 
-    public FlatJson getPart(int index) {
-        return parts.get(index);
-    }
-
-    public List<FlatJson> getParts() {
-        return parts;
+    public List<JsonPart> getParts() {
+        return jsonParts;
     }
 }
