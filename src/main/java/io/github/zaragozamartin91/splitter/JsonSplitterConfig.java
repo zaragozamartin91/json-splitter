@@ -20,11 +20,11 @@ public class JsonSplitterConfig {
     private Long minSizeBytes;
     private Long maxSizeBytes;
 
-    public JsonSplitterConfig() {
+    JsonSplitterConfig() {
         this.flatten = false;
     }
 
-    public JsonSplitterConfig(JsonSplitterConfig other) {
+    JsonSplitterConfig(JsonSplitterConfig other) {
         this.flatten = other.flatten;
         this.strategy = other.strategy;
         this.entryCount = other.entryCount;
@@ -33,6 +33,11 @@ public class JsonSplitterConfig {
         this.maxSizeBytes = other.maxSizeBytes;
     }
 
+    /**
+     * Sets whether the JSON should be flattened before splitting.
+     * @param flatten True to enable flattening, false to disable
+     * @return A new configuration instance with the updated flatten setting
+     */
     public JsonSplitterConfig withFlatten(boolean flatten) {
         JsonSplitterConfig other = new JsonSplitterConfig(this);
         other.flatten = flatten;
@@ -53,18 +58,34 @@ public class JsonSplitterConfig {
         return strategy;
     }
 
+    /**
+     * Creates a configuration that splits the JSON based on the number of entries.
+     * @param entryCount The maximum number of entries per part
+     * @return A configuration instance for entry count splitting
+     */
     public static JsonSplitterConfig splitByEntryCount(int entryCount) {
         JsonSplitterConfig config = new JsonSplitterConfig().withStrategy(SPLIT_BY_ENTRY_COUNT);
         config.entryCount = entryCount;
         return config;
     }
 
+    /**
+     * Creates a configuration that splits the JSON into a specific number of parts.
+     * @param numberOfParts The total number of parts to split into
+     * @return A configuration instance for part count splitting
+     */
     public static JsonSplitterConfig splitByNumberOfParts(int numberOfParts) {
         JsonSplitterConfig config = new JsonSplitterConfig().withStrategy(SPLIT_BY_NUMBER_OF_PARTS);
         config.numberOfParts = numberOfParts;
         return config;
     }
 
+    /**
+     * Creates a configuration that splits the JSON into chunks within a specified size range.
+     * @param minSizeBytes The minimum size of each chunk in bytes
+     * @param maxSizeBytes The maximum size of each chunk in bytes
+     * @return A configuration instance for size-based splitting
+     */
     public static JsonSplitterConfig splitByChunkSize(long minSizeBytes,
                                                       long maxSizeBytes) {
         JsonSplitterConfig config = new JsonSplitterConfig().withStrategy(SPLIT_BY_CHUNK_SIZE);
@@ -73,23 +94,23 @@ public class JsonSplitterConfig {
         return config;
     }
 
-    public Integer entryCount() {
+    Integer entryCount() {
         return entryCount;
     }
 
-    public Integer numberOfParts() {
+    Integer numberOfParts() {
         return numberOfParts;
     }
 
-    public Long minSizeBytes() {
+    Long minSizeBytes() {
         return minSizeBytes;
     }
 
-    public Long maxSizeBytes() {
+    Long maxSizeBytes() {
         return maxSizeBytes;
     }
 
-    public JsonSplitterConfig valid() {
+    JsonSplitterConfig valid() {
         validateState(strategy, Objects::nonNull, "Missing splitting strategy");
 
         switch (strategy()) {
