@@ -2,6 +2,7 @@ package io.github.zaragozamartin91.splitter;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -133,5 +134,21 @@ class JsonFlattenerTest {
         assertEquals("1995-06-26", result.get("biometrics.birthDate"));
         assertEquals("brown", result.get("biometrics.face.hairColor"));
         assertEquals("blue", result.get("biometrics.face.eyeColor"));
+    }
+
+    @Test
+    void testFlattenFileValid() {
+        File file = new File("src/test/resources/sample-data.json");
+        Map<String, Object> result = flattener.flatten(file).jsonMap();
+
+        assertNotNull(result);
+        assertEquals("Randall Trujillo", result.get("name"));
+        assertEquals(27, result.get("age"));
+    }
+
+    @Test
+    void testFlattenFileMissing() {
+        File file = new File("non_existent_file.json");
+        assertThrows(RuntimeException.class, () -> flattener.flatten(file));
     }
 }

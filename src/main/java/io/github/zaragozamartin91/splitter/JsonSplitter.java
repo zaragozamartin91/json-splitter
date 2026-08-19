@@ -7,13 +7,20 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@PublicApi
+/**
+ * Core engine responsible for executing the split operation based on a configuration.
+ */
 public class JsonSplitter implements Function<JsonSource, SplitJson> {
     private final JsonSplitterConfig config;
     private final JsonCodec jsonCodec;
     private final JsonFlattener jsonFlattener;
     private final JsonExpander jsonExpander;
 
+    /**
+     * Creates a new JsonSplitter instance with the specified configuration.
+     * @param config The configuration to use for splitting
+     * @throws IllegalStateException if the configuration is invalid
+     */
     public JsonSplitter(final JsonSplitterConfig config) {
         this.config = config.valid();
         jsonCodec = JsonCodec.instance();
@@ -21,6 +28,11 @@ public class JsonSplitter implements Function<JsonSource, SplitJson> {
         jsonExpander = new JsonExpander();
     }
 
+    /**
+     * Splits the provided JSON source into multiple parts based on the configured strategy.
+     * @param jsonSource The JSON source to split
+     * @return A SplitJson instance containing the resulting parts
+     */
     @Override
     public SplitJson apply(JsonSource jsonSource) {
         JsonCodec.JsonBox jsonBox = jsonCodec.polyReadTree(jsonSource.getContent());
@@ -28,7 +40,7 @@ public class JsonSplitter implements Function<JsonSource, SplitJson> {
         /* If the input is a pure array then flattening is mandatory */
         boolean flatAndExpand = config.flatten() || jsonBox.isArray();
         if (flatAndExpand) {
-            FlatJson flatJson = jsonFlattener.flatten(jsonCodec.toMap(jsonBox));
+            JsonPart flatJson = jsonFlattener.flatten(jsonCodec.toMap(jsonBox));
             normalInput = flatJson.jsonMap();
         } else {
             normalInput = jsonCodec.toMap(jsonBox);
