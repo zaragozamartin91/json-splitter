@@ -112,6 +112,10 @@ Represents a single split segment of the original JSON. It provides access to th
 - `jsonMap()`: Returns the part as a `Map<String, Object>` if the part is a JSON object.
 - `jsonArray()`: Returns the part as a `List<Object>` if the part is a JSON array.
 
+### JsonPartWriter
+A utility class for serializing `JsonPart` objects back into their original JSON string or byte array representation.
+
+
 ---
 
 ## Usage Examples
@@ -190,6 +194,21 @@ List<JsonPart> parts = result.getParts();
 // The results are automatically expanded back to original nested structure
 ```
 
+### Serializing Parts
+
+Serialize a `JsonPart` back into a JSON string or byte array for storage or transmission:
+
+```java
+JsonPart part = ...; // a part obtained from SplitJson.getParts()
+JsonPartWriter writer = new JsonPartWriter();
+
+// 1. Serialize to string with a specific charset
+String jsonString = writer.writeText(part, StandardCharsets.UTF_8);
+
+// 2. Serialize to bytes
+byte[] jsonBytes = writer.writeBytes(part);
+```
+
 ---
 
 ## API Reference
@@ -220,6 +239,13 @@ List<JsonPart> parts = result.getParts();
 | Method | Description |
 | :--- | :--- |
 | `getParts()` | Returns the list of all resulting `JsonPart` segments. |
+
+### JsonPartWriter Methods
+
+| Method | Description |
+| :--- | :--- |
+| `writeText(JsonPart jsonPart, Charset charset)` | Serializes the JSON part to a string using the specified charset. |
+| `writeBytes(JsonPart jsonPart)` | Serializes the JSON part to a byte array. |
 
 ---
 

@@ -5,7 +5,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@PublicApi
+/**
+ * Logic for converting nested JSON into a flat map using dot-notation keys.
+ */
 public class JsonFlattener {
     private final JsonCodec jsonCodec;
 
@@ -19,27 +21,51 @@ public class JsonFlattener {
         this.jsonCodec = jsonCodec;
     }
 
+    /**
+     * Configures the flattener to exclude null values from the resulting flat map.
+     * @return This flattener instance for method chaining
+     */
     public JsonFlattener discardNulls() {
         this.keepNulls = false;
         return this;
     }
 
-    public FlatJson flatten(Object data) {
+    /**
+     * Flattens a Java object into a JSON part containing a flat map.
+     * @param data The object to flatten
+     * @return A JsonPart containing the flattened map
+     */
+    public JsonPart flatten(Object data) {
         JsonCodec.JsonBox jsonBox = jsonCodec.polyReadTree(data);
-        return new FlatJson(flatten(jsonBox));
+        return JsonPart.map(flatten(jsonBox));
     }
 
-    public FlatJson flatten(String jsonString) {
-        return new FlatJson(flatten(jsonCodec.readTree(jsonString)));
+    /**
+     * Flattens a JSON string into a JSON part containing a flat map.
+     * @param jsonString The JSON string to flatten
+     * @return A JsonPart containing the flattened map
+     */
+    public JsonPart flatten(String jsonString) {
+        return JsonPart.map(flatten(jsonCodec.readTree(jsonString)));
     }
 
-    public FlatJson flatten(File file) {
-        return new FlatJson(flatten(jsonCodec.readTree(file)));
+    /**
+     * Flattens a JSON file into a JSON part containing a flat map.
+     * @param file The JSON file to flatten
+     * @return A JsonPart containing the flattened map
+     */
+    public JsonPart flatten(File file) {
+        return JsonPart.map(flatten(jsonCodec.readTree(file)));
     }
 
-    public FlatJson flatten(Map<String, Object> map) {
+    /**
+     * Flattens a JSON map into a JSON part containing a flat map.
+     * @param map The map to flatten
+     * @return A JsonPart containing the flattened map
+     */
+    public JsonPart flatten(Map<String, Object> map) {
         JsonCodec.JsonBox jsonNode = jsonCodec.valueToTree(map);
-        return new FlatJson(flatten(jsonNode));
+        return JsonPart.map(flatten(jsonNode));
     }
 
     private Map<String, Object> flatten(JsonCodec.JsonBox root) {
@@ -54,15 +80,15 @@ public class JsonFlattener {
         if (node.isObject()) {
             flattenObjectNode(currentPath, node, accumulator);
             return;
-        } 
-        
+        }
+
         if (node.isArray()) {
             flattenArrayNode(currentPath, node, accumulator);
             return;
         }
-        
+
         if (node.isNull() && discardNullValues()) return;
-        
+
         if (node.isValueNode()) {
             // Map Jackson primitive types to Java types
             if (node.isBoolean()) accumulator.put(currentPath, node.asBoolean());

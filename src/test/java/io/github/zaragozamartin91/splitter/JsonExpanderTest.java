@@ -88,7 +88,7 @@ public class JsonExpanderTest {
         Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
         JsonExpander unflattener = new JsonExpander();
-        ExpandedJson result = unflattener.unflatten(flat);
+        JsonPart result = unflattener.unflatten(flat);
 
         // Root is always Map per signature. Root will have keys "[0]" and "[1]".
         assertEquals(2, result.jsonArray().size());
@@ -97,7 +97,7 @@ public class JsonExpanderTest {
         Map<String, Object> item2 = (Map<String, Object>) result.jsonArray().get(1);
         assertEquals("item2", item2.get("name"));
 
-        assertEquals(ExpandedJson.ResultType.JSON_ARRAY, result.resultType());
+        assertEquals(JsonRootType.JSON_ARRAY, result.rootType());
     }
 
     @Test
@@ -108,9 +108,9 @@ public class JsonExpanderTest {
         Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
         JsonExpander unflattener = new JsonExpander();
-        ExpandedJson result = unflattener.unflatten(flat);
+        JsonPart result = unflattener.unflatten(flat);
 
-        assertEquals(ExpandedJson.ResultType.JSON_ARRAY, result.resultType());
+        assertEquals(JsonRootType.JSON_ARRAY, result.rootType());
         assertEquals(3, result.jsonArray().size());
         assertEquals("apple", result.jsonArray().get(0));
         assertEquals("banana", result.jsonArray().get(1));
@@ -125,7 +125,7 @@ public class JsonExpanderTest {
         Map<String, Object> flat = flattener.flatten(json).jsonMap();
 
         JsonExpander unflattener = new JsonExpander();
-        ExpandedJson unflatten = unflattener.unflatten(flat);
+        JsonPart unflatten = unflattener.unflatten(flat);
         Map<String, Object> result = unflatten.jsonMap();
 
         assertEquals("John", result.get("name"));
@@ -137,6 +137,6 @@ public class JsonExpanderTest {
         Map<String, Object> phone0 = (Map<String, Object>) phones.get(0);
         assertEquals("123", phone0.get("number"));
 
-        assertEquals(ExpandedJson.ResultType.JSON_MAP, unflatten.resultType());
+        assertEquals(JsonRootType.JSON_MAP, unflatten.rootType());
     }
 }

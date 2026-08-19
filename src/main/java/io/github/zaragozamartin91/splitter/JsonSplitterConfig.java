@@ -5,7 +5,9 @@ import java.util.function.Predicate;
 
 import static io.github.zaragozamartin91.splitter.JsonSplitterStrategy.*;
 
-@PublicApi
+/**
+ * Immutable-style configuration for the JSON splitting process.
+ */
 public class JsonSplitterConfig {
     private boolean flatten;
     private JsonSplitterStrategy strategy;

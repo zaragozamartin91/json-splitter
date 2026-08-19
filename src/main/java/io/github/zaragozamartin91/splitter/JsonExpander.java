@@ -7,11 +7,18 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@PublicApi
+/**
+ * Logic for reconstructing nested JSON from a flattened map.
+ */
 public class JsonExpander {
 
-    public ExpandedJson unflatten(Map<String, Object> theFlatMap) {
-        if (theFlatMap == null || theFlatMap.isEmpty()) return new ExpandedJson(theFlatMap);
+    /**
+     * Reconstructs a nested JSON structure from a flattened map.
+     * @param theFlatMap The flat map with dot-notation keys
+     * @return A JsonPart containing the expanded nested structure
+     */
+    public JsonPart unflatten(Map<String, Object> theFlatMap) {
+        if (theFlatMap == null || theFlatMap.isEmpty()) return JsonPart.map(theFlatMap);
 
         boolean isPureArray = theFlatMap.entrySet().stream().anyMatch(entry -> {
             HeadAndTail headAndTail = HeadAndTail.from(entry.getKey());
@@ -25,7 +32,7 @@ public class JsonExpander {
                 Object value = entry.getValue();
                 setIntermediateArray(rootArray, ArrayKeyAndIndex.from(path), value);
             }
-            return new ExpandedJson(rootArray);
+            return JsonPart.array(rootArray);
         }
 
         Map<String, Object> root = new LinkedHashMap<>();
@@ -36,7 +43,7 @@ public class JsonExpander {
             unflatten(root, path, value);
         }
 
-        return new ExpandedJson(root);
+        return JsonPart.map(root);
     }
 
     @SuppressWarnings("unchecked")
@@ -57,7 +64,7 @@ public class JsonExpander {
             unflatten(intermediateNode, headAndTail.tailPath(), value);
             return;
         }
-        
+
         // otherwise is an intermediate field array eg:
         // * foo[1].bar
         // * foo[1].baz[2]
@@ -163,7 +170,7 @@ public class JsonExpander {
     static boolean isLeafPath(String path) {
         return !path.contains(".");
     }
-    
+
     static final class HeadAndTail {
         final String head;
         final Deque<String> tail;
