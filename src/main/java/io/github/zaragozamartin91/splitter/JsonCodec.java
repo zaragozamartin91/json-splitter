@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -76,6 +77,11 @@ class JsonCodec {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    String writeValueAsText(Object value, Charset charset) {
+        byte[] bytes = writeValueAsBytes(value);
+        return new String(bytes, charset);
     }
 
     int sizeInBytes(Object value) {

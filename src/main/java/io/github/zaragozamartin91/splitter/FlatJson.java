@@ -6,7 +6,7 @@ import java.util.Map;
 public class FlatJson {
     private final Map<String, Object> jsonMap;
 
-    public FlatJson(Map<String, Object> jsonMap) {
+    FlatJson(Map<String, Object> jsonMap) {
         this.jsonMap = jsonMap;
     }
 

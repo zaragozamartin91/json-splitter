@@ -6,7 +6,7 @@ import java.util.List;
 public class SplitJson {
     private final List<JsonPart> jsonParts;
 
-    public SplitJson(List<JsonPart> jsonParts) {
+    SplitJson(List<JsonPart> jsonParts) {
         this.jsonParts = jsonParts;
     }
 

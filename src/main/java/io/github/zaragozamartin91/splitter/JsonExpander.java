@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 @PublicApi
 public class JsonExpander {
 
-    public ExpandedJson unflatten(Map<String, Object> theFlatMap) {
-        if (theFlatMap == null || theFlatMap.isEmpty()) return new ExpandedJson(theFlatMap);
+    public JsonPart unflatten(Map<String, Object> theFlatMap) {
+        if (theFlatMap == null || theFlatMap.isEmpty()) return JsonPart.map(theFlatMap);
 
         boolean isPureArray = theFlatMap.entrySet().stream().anyMatch(entry -> {
             HeadAndTail headAndTail = HeadAndTail.from(entry.getKey());
@@ -25,7 +25,7 @@ public class JsonExpander {
                 Object value = entry.getValue();
                 setIntermediateArray(rootArray, ArrayKeyAndIndex.from(path), value);
             }
-            return new ExpandedJson(rootArray);
+            return JsonPart.array(rootArray);
         }
 
         Map<String, Object> root = new LinkedHashMap<>();
@@ -36,7 +36,7 @@ public class JsonExpander {
             unflatten(root, path, value);
         }
 
-        return new ExpandedJson(root);
+        return JsonPart.map(root);
     }
 
     @SuppressWarnings("unchecked")

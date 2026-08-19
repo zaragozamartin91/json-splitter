@@ -122,7 +122,7 @@ class SplitByChunkSizeTest {
     private static Map<String, Object> unflattenAndMap(Collection<Map.Entry<String, Object>> entries) {
         LinkedHashMap<String, Object> flatMap = newLinkedHashMap(entries);
         JsonExpander jsonExpander = new JsonExpander();
-        ExpandedJson unflatten = jsonExpander.unflatten(flatMap);
+        JsonPart unflatten = jsonExpander.unflatten(flatMap);
         return unflatten.jsonMap();
     }
 
