@@ -55,7 +55,7 @@ enum SplitByChunkSize {
         List<Map.Entry<String, Object>> inputEntryList = new ArrayList<>(input.entrySet());
 
         /* No need to do any splitting if the total size of the input is smaller than the requested chunk size */
-        if (sizeInterval.fits(inputSizeBytes)) {
+        if (sizeInterval.tooSmall(inputSizeBytes) || sizeInterval.fits(inputSizeBytes)) {
             accumulator.add(new HeftyMap(inputEntryList, inputSizeBytes));
             return accumulator;
         }
