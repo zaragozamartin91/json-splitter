@@ -160,4 +160,26 @@ class SplitByChunkSizeTest {
     void testSizeIntervalMaxLessThanMin() {
         assertThrows(IllegalArgumentException.class, () -> new SizeInterval(200, 100));
     }
+
+    @Test
+    void testNoSplitWhenSizeBelowMin() {
+        // Create a small map that is definitely < 256 bytes
+        Map<String, Object> input = new LinkedHashMap<>();
+        input.put("key", "value");
+
+        Function<Object, Long> sizeFunction = this::mapSizeAsBytes;
+
+        // Params: minSizeBytes=256, maxSizeBytes=512
+        List<Map<String, Object>> result = SplitByChunkSize.INSTANCE.splitByChunkSize(
+                input,
+                256,
+                512,
+                sizeFunction,
+                SplitByChunkSizeTest::newLinkedHashMap
+        );
+
+        assertNotNull(result);
+        assertEquals(1, result.size(), "Result should contain exactly 1 map when input size < minSizeBytes");
+        assertEquals(input, result.get(0), "The single result map should be identical to the original input");
+    }
 }
